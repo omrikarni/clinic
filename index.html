@@ -1,0 +1,2214 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#4f7a6a">
+<meta name="robots" content="noindex, nofollow">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://accounts.google.com/gsi/client; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://accounts.google.com/gsi/style; font-src https://fonts.gstatic.com; connect-src 'self' https://www.googleapis.com https://speech.googleapis.com https://accounts.google.com/gsi/; frame-src https://accounts.google.com/gsi/; img-src 'self' data: blob:; media-src blob:; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<title>הקליניקה שלי</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="config.js"></script>
+<style>
+:root{
+  --bg:#f5f2ec; --surface:#ffffff; --surface-2:#faf8f4; --ink:#2a2926; --muted:#6c675f; --line:#e4ded3;
+  --accent:#4f7a6a; --accent-ink:#ffffff; --accent-soft:#e6efe9; --warn:#b5654a; --warn-soft:#f7e6df;
+  --ok:#3f7d4e; --ok-soft:#e3f0e5; --info-soft:#e8eef6; --info:#3d5f8c; --rec:#c2410c;
+  --radius:14px; --shadow:0 1px 2px rgba(0,0,0,.04),0 4px 14px rgba(0,0,0,.05);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#181a19; --surface:#222624; --surface-2:#1d201f; --ink:#ebe7e0; --muted:#a49e94; --line:#343936;
+    --accent:#7fb19c; --accent-ink:#10201a; --accent-soft:#2a3a33; --warn:#e0937a; --warn-soft:#3b2a24;
+    --ok:#86c493; --ok-soft:#24352a; --info-soft:#26303d; --info:#9cb8de; --rec:#fb923c;
+    --shadow:none;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#181a19; --surface:#222624; --surface-2:#1d201f; --ink:#ebe7e0; --muted:#a49e94; --line:#343936;
+  --accent:#7fb19c; --accent-ink:#10201a; --accent-soft:#2a3a33; --warn:#e0937a; --warn-soft:#3b2a24;
+  --ok:#86c493; --ok-soft:#24352a; --info-soft:#26303d; --info:#9cb8de; --rec:#fb923c; --shadow:none;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--ink);font-family:Assistant,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:var(--accent)}
+.ic{width:20px;height:20px;flex:none}
+.hidden{display:none!important}
+
+/* ---------- layout ---------- */
+.app{display:flex;min-height:100vh}
+.side{width:230px;flex:none;background:var(--surface);border-inline-start:1px solid var(--line);padding:20px 12px;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;gap:4px}
+.brand{font-weight:700;font-size:19px;padding:4px 12px 18px;display:flex;align-items:center;gap:10px}
+.brand .dot{width:28px;height:28px;border-radius:9px;background:var(--accent);display:grid;place-items:center;color:var(--accent-ink)}
+.nav a{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:10px;color:var(--ink);text-decoration:none;font-weight:500}
+.nav a:hover{background:var(--surface-2)}
+.nav a.on{background:var(--accent-soft);color:var(--accent)}
+.side .grow{flex:1}
+.content{flex:1;min-width:0;display:flex;flex-direction:column}
+.top{display:flex;align-items:center;gap:12px;padding:14px 24px;border-bottom:1px solid var(--line);background:var(--bg);position:sticky;top:0;z-index:5}
+.top h1{font-size:21px;margin:0;flex:1;font-weight:700}
+main{padding:22px 24px 100px;max-width:1150px;width:100%}
+.bottom{display:none}
+.mobile-only{display:none!important}
+@media (max-width:820px){
+  .side{display:none}
+  .mobile-only{display:inline-grid!important}
+  .top{padding:12px 16px;padding-top:max(12px,env(safe-area-inset-top))}
+  main{padding:16px 16px 110px}
+  .bottom{display:flex;position:fixed;bottom:0;inset-inline:0;background:var(--surface);border-top:1px solid var(--line);padding:6px 4px max(6px,env(safe-area-inset-bottom));z-index:6}
+  .bottom a{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:10.5px;white-space:nowrap;color:var(--muted);text-decoration:none;padding:4px 0}
+  .bottom a.on{color:var(--accent)}
+}
+
+/* ---------- components ---------- */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow)}
+.card + .card{margin-top:16px}
+.card h2{font-size:17px;margin:0 0 12px;display:flex;align-items:center;gap:8px}
+.card h2 .sp{flex:1}
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.grid > .card + .card{margin-top:0}
+@media (max-width:820px){ .g3 .card{padding:14px} .stat{font-size:22px} }
+.row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.row .sp{flex:1}
+.muted{color:var(--muted)}
+.small{font-size:13.5px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:8px 14px;cursor:pointer;font-weight:600;min-height:40px;text-decoration:none;color:var(--ink)}
+.btn:hover{background:var(--surface-2)}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.pri:hover{filter:brightness(1.05)}
+.btn.danger{color:var(--warn);border-color:var(--warn)}
+.btn.ghost{border-color:transparent;background:transparent}
+.btn.sm{min-height:32px;padding:4px 10px;font-size:14px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.iconbtn{border:none;background:transparent;padding:8px;border-radius:10px;cursor:pointer;display:inline-grid;place-items:center;color:var(--ink)}
+.iconbtn:hover{background:var(--surface-2)}
+.chip{display:inline-flex;align-items:center;gap:4px;font-size:12.5px;font-weight:600;padding:2px 9px;border-radius:999px;background:var(--surface-2);border:1px solid var(--line);white-space:nowrap}
+.chip.ok{background:var(--ok-soft);color:var(--ok);border-color:transparent}
+.chip.warn{background:var(--warn-soft);color:var(--warn);border-color:transparent}
+.chip.info{background:var(--info-soft);color:var(--info);border-color:transparent}
+.chip.acc{background:var(--accent-soft);color:var(--accent);border-color:transparent}
+.list{display:flex;flex-direction:column}
+.item{display:flex;align-items:center;gap:12px;padding:12px 4px;border-bottom:1px solid var(--line);cursor:pointer;text-decoration:none;color:inherit}
+.item:last-child{border-bottom:none}
+.item:hover{background:var(--surface-2)}
+.item .main{flex:1;min-width:0}
+.item .t{font-weight:600}
+.avatar{width:38px;height:38px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-weight:700;flex:none}
+.empty{color:var(--muted);text-align:center;padding:26px 10px}
+.stat{font-size:26px;font-weight:700}
+.stat-l{color:var(--muted);font-size:13.5px}
+label.f{display:flex;flex-direction:column;gap:4px;font-size:14px;font-weight:600}
+label.f span.h{font-weight:400;color:var(--muted);font-size:13px}
+.input,input[type=text],input[type=search],input[type=tel],input[type=email],input[type=number],input[type=date],input[type=time],input[type=password],select,textarea{width:100%;border:1px solid var(--line);background:var(--surface-2);border-radius:10px;padding:9px 12px;min-height:42px;font-weight:400}
+textarea{min-height:90px;resize:vertical}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);outline-offset:0;border-color:transparent}
+.fgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.fgrid .full{grid-column:1/-1}
+.check{display:flex;align-items:flex-start;gap:8px;font-weight:500;cursor:pointer}
+.check input{width:20px;height:20px;margin-top:2px;accent-color:var(--accent)}
+.notice{border-radius:12px;padding:12px 14px;background:var(--info-soft);color:var(--ink);font-size:14.5px;display:flex;gap:10px;align-items:flex-start}
+.notice.warn{background:var(--warn-soft)}
+.notice.ok{background:var(--ok-soft)}
+table.t{width:100%;border-collapse:collapse;font-size:15px}
+table.t th{text-align:start;font-size:13px;color:var(--muted);font-weight:600;padding:8px 6px;border-bottom:1px solid var(--line)}
+table.t td{padding:10px 6px;border-bottom:1px solid var(--line)}
+.num{font-variant-numeric:tabular-nums}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:16px;overflow-x:auto}
+.tabs a{padding:9px 14px;text-decoration:none;color:var(--muted);font-weight:600;border-bottom:2px solid transparent;white-space:nowrap}
+.tabs a.on{color:var(--accent);border-color:var(--accent)}
+
+/* sync pill */
+.sync{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:6px}
+.sync .d{width:8px;height:8px;border-radius:50%;background:var(--ok)}
+.sync.pending .d,.sync.saving .d{background:#d4a72c}
+.sync.error .d{background:var(--warn)}
+.recpill{display:inline-flex;align-items:center;gap:6px;background:var(--rec);color:#fff;border-radius:999px;padding:3px 12px;font-size:13.5px;font-weight:700;text-decoration:none}
+.recpill .d{width:8px;height:8px;border-radius:50%;background:#fff;animation:blink 1.2s infinite}
+@keyframes blink{50%{opacity:.25}}
+
+/* calendar */
+.week{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px}
+.day{background:var(--surface);border:1px solid var(--line);border-radius:12px;min-height:160px;display:flex;flex-direction:column}
+.day.today{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.day .dh{padding:8px 10px;border-bottom:1px solid var(--line);font-weight:700;font-size:14px;display:flex;justify-content:space-between;align-items:center}
+.day .dh button{border:none;background:none;cursor:pointer;color:var(--muted);padding:2px;border-radius:6px}
+.day .dh button:hover{background:var(--surface-2);color:var(--accent)}
+.day .db{padding:6px;display:flex;flex-direction:column;gap:6px}
+.appt{border-radius:9px;padding:6px 8px;background:var(--accent-soft);cursor:pointer;font-size:13.5px;border-inline-start:3px solid var(--accent)}
+.appt .tm{font-weight:700;font-variant-numeric:tabular-nums}
+.appt.cancelled{opacity:.55;text-decoration:line-through;background:var(--surface-2);border-color:var(--line)}
+.appt.noshow{background:var(--warn-soft);border-color:var(--warn)}
+.appt.done{background:var(--ok-soft);border-color:var(--ok)}
+.appt.grp{background:var(--info-soft);border-color:var(--info)}
+@media (max-width:900px){ .week{grid-template-columns:1fr} .day{min-height:auto} }
+
+/* dialog */
+dialog{border:none;border-radius:18px;padding:0;width:min(640px,calc(100vw - 24px));max-height:calc(100vh - 40px);background:var(--surface);color:var(--ink);box-shadow:0 20px 60px rgba(0,0,0,.25)}
+dialog::backdrop{background:rgba(20,20,18,.45)}
+dialog form.d{display:flex;flex-direction:column;max-height:calc(100vh - 40px)}
+dialog .dh{padding:16px 20px;border-bottom:1px solid var(--line);font-weight:700;font-size:18px;display:flex;align-items:center}
+dialog .dh .sp{flex:1}
+dialog .dbody{padding:18px 20px;overflow:auto;display:flex;flex-direction:column;gap:14px}
+dialog .df{padding:12px 20px;border-top:1px solid var(--line);display:flex;gap:8px;flex-wrap:wrap}
+dialog .df .sp{flex:1}
+
+/* gate (login / unlock) */
+.gate{min-height:100vh;display:grid;place-items:center;padding:20px}
+.gate .box{width:min(440px,100%);background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:28px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:14px}
+.gate h1{margin:0;font-size:24px}
+.gate .logo{width:52px;height:52px;border-radius:15px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center}
+.gate .logo .ic{width:28px;height:28px}
+.err{color:var(--warn);font-weight:600;font-size:14.5px}
+
+/* recorder */
+.recorder{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.recbtn{width:64px;height:64px;border-radius:50%;border:none;background:var(--rec);color:#fff;cursor:pointer;display:grid;place-items:center;flex:none}
+.recbtn .ic{width:28px;height:28px}
+.recbtn.stop{background:var(--ink);color:var(--bg)}
+.timer{font-size:30px;font-weight:700;font-variant-numeric:tabular-nums;min-width:110px}
+.meter{flex:1;min-width:120px;height:8px;border-radius:99px;background:var(--surface-2);overflow:hidden;border:1px solid var(--line)}
+.meter i{display:block;height:100%;width:0;background:var(--accent);transition:width .1s}
+
+/* form builder */
+.fcard{border:1px solid var(--line);border-radius:12px;padding:12px;background:var(--surface-2);display:flex;flex-direction:column;gap:10px}
+.fcard + .fcard{margin-top:10px}
+
+/* kiosk */
+.kiosk{position:fixed;inset:0;background:var(--bg);z-index:50;overflow:auto;padding:24px 16px 60px}
+.kiosk .sheet{max-width:720px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+.kiosk h1{margin:0;font-size:26px}
+.kq{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.kq .ql{font-weight:700;font-size:17px}
+.kq .req{color:var(--warn)}
+.kq.bad{border-color:var(--warn);box-shadow:0 0 0 1px var(--warn)}
+.kq.info{background:transparent;border:none;padding:4px 0}
+.kq.info h3{margin:6px 0 0;font-size:19px}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opts.inline{flex-direction:row;gap:18px}
+.sigwrap{border:1px dashed var(--muted);border-radius:12px;background:#fff;position:relative}
+.sigwrap canvas{width:100%;height:180px;display:block;touch-action:none;border-radius:12px}
+.sigwrap .clr{position:absolute;top:6px;inset-inline-start:6px}
+.answer{padding:10px 0;border-bottom:1px solid var(--line)}
+.answer .q{font-size:13.5px;color:var(--muted);font-weight:600}
+.answer img{max-width:280px;background:#fff;border:1px solid var(--line);border-radius:8px}
+
+.gcard{display:block;text-decoration:none;color:inherit}
+.gcard:hover{border-color:var(--accent)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface)}
+.seg button{border:none;background:none;padding:7px 14px;cursor:pointer;font-weight:600;color:var(--muted)}
+.seg button.on{background:var(--accent-soft);color:var(--accent)}
+.qty{display:inline-flex;align-items:center;gap:2px}
+.qty .iconbtn{padding:2px 8px;font-size:16px;font-weight:700}
+.eqpick{display:flex;flex-direction:column;gap:6px;margin-top:8px;max-height:260px;overflow:auto;border:1px solid var(--line);border-radius:10px;padding:8px}
+.eqpick .check{align-items:center}
+@media (max-width:820px){ .eqt th:nth-child(2),.eqt td:nth-child(2),.eqt th:nth-child(5),.eqt td:nth-child(5),.eqt th:nth-child(6),.eqt td:nth-child(6){display:none} }
+.remv{background:var(--accent-soft);border-radius:10px;padding:8px 10px}
+.rempreview{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px;margin-top:6px}
+.pv{white-space:pre-wrap;background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:14.5px}
+.pvh{font-size:12.5px;font-weight:700;color:var(--muted);margin-bottom:4px;white-space:normal}
+code{background:var(--surface-2);border:1px solid var(--line);border-radius:5px;padding:0 5px;font-size:13px}
+/* sessions in patient card */
+.ic-s{width:14px;height:14px}
+.scard h2{flex-wrap:wrap}
+.slink{color:inherit;text-decoration:none}
+.slink:hover{color:var(--accent)}
+.player{margin-top:10px}
+.player:empty{display:none}
+.sblock{margin-top:12px}
+.sblock .q{font-size:13px;color:var(--muted);font-weight:600}
+.clamp{white-space:pre-wrap;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+details.trx{margin-top:12px;border-top:1px solid var(--line);padding-top:10px}
+details.trx summary{cursor:pointer;font-weight:600;color:var(--accent);list-style-position:inside}
+.trlines{max-height:420px;overflow:auto;margin-top:8px;padding-inline-end:4px}
+.trlines p{margin:0;padding:6px 0;display:flex;gap:10px;align-items:baseline;border-bottom:1px dashed var(--line)}
+.trlines p.hit{background:var(--warn-soft);border-radius:6px}
+.ts{flex:none;font-variant-numeric:tabular-nums;font-size:12.5px;font-weight:700;color:var(--accent);background:var(--accent-soft);border:none;border-radius:6px;padding:1px 7px;cursor:pointer;font-family:inherit}
+span.ts{cursor:default}
+.ts:hover{filter:brightness(.95)}
+@media print{
+  body *{visibility:hidden}
+  #printarea, #printarea *{visibility:visible}
+  #printarea{position:absolute;inset:0;padding:20px;color:#000;background:#fff}
+}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<dialog id="dlg"></dialog>
+<div id="printarea" class="hidden"></div>
+
+<script>
+'use strict';
+/* =====================================================================
+   הקליניקה שלי — אפליקציית ניהול קליניקה מוצפנת
+   כל המידע מוצפן במכשיר (AES-256-GCM, מפתח שנגזר מהסיסמה ב-PBKDF2)
+   ונשמר מוצפן בלבד: בתיקייה הנסתרת של האפליקציה בגוגל דרייב, או מקומית.
+   ===================================================================== */
+const CFG = Object.assign({ clientId:'', autoLockMinutes:10, appName:'הקליניקה שלי' }, window.APP_CONFIG || {});
+CFG.transcription = Object.assign({ enabled:false, projectId:'', language:'he-IL' }, CFG.transcription || {});
+CFG.reminders = Object.assign({ automation:false }, CFG.reminders || {});
+const SCOPES = () => 'https://www.googleapis.com/auth/drive.appdata'
+  + (CFG.reminders.automation ? ' https://www.googleapis.com/auth/drive.file' : '')
+  + (CFG.transcription.enabled && CFG.transcription.projectId ? ' https://www.googleapis.com/auth/cloud-platform' : '');
+document.title = CFG.appName;
+
+const APP = {
+  store:null, key:null, db:null, ver:0, savedVer:0, saveTimer:null, saving:Promise.resolve(),
+  sync:'saved', needAuth:false, lastActivity:Date.now(), kiosk:null, rec:null,
+  weekStart:null, tdraft:null, audioUrl:null, recovery:[], trLive:{}, trJob:null
+};
+
+/* ---------------- utilities ---------------- */
+const enc = new TextEncoder(), dec = new TextDecoder();
+const $ = (s, r=document) => r.querySelector(s);
+const $$ = (s, r=document) => [...r.querySelectorAll(s)];
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid = () => (crypto.randomUUID ? crypto.randomUUID() : [...crypto.getRandomValues(new Uint8Array(16))].map(b=>b.toString(16).padStart(2,'0')).join(''));
+const pad = n => String(n).padStart(2,'0');
+const ymd = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const hm = d => `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+const parseLocal = s => { const [d,t='00:00'] = String(s).split('T'); const [y,m,dd] = d.split('-').map(Number); const [h,mi] = t.split(':').map(Number); return new Date(y, m-1, dd, h||0, mi||0); };
+const fmtDate = (s, opt={weekday:'short', day:'numeric', month:'numeric', year:'2-digit'}) => s ? parseLocal(s).toLocaleDateString('he-IL', opt) : '';
+const fmtDur = sec => { sec = Math.max(0, Math.round(sec)); const h = Math.floor(sec/3600), m = Math.floor(sec%3600/60), s = sec%60; return (h ? h+':'+pad(m) : m) + ':' + pad(s); };
+const money = n => '₪' + (Math.round((+n||0)*100)/100).toLocaleString('he-IL');
+const addDays = (d, n) => { const x = new Date(d); x.setDate(x.getDate()+n); return x; };
+const startOfWeek = d => { const x = new Date(d.getFullYear(), d.getMonth(), d.getDate()); x.setDate(x.getDate() - x.getDay()); return x; };
+const DAYS = ['ראשון','שני','שלישי','רביעי','חמישי','שישי','שבת'];
+function b64e(bytes){ let s=''; for (let i=0;i<bytes.length;i+=0x8000) s += String.fromCharCode.apply(null, bytes.subarray(i, i+0x8000)); return btoa(s); }
+function b64d(str){ const s = atob(str); const b = new Uint8Array(s.length); for (let i=0;i<s.length;i++) b[i] = s.charCodeAt(i); return b; }
+function toast(msg, kind=''){ const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; const n = document.querySelectorAll('.toast').length; t.style.cssText = `position:fixed;bottom:${90 + n*54}px;inset-inline:0;margin:auto;width:max-content;max-width:90vw;background:${kind==='err'?'var(--warn)':'var(--ink)'};color:var(--bg);padding:10px 18px;border-radius:12px;z-index:100;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,.2)`; document.body.appendChild(t); setTimeout(()=>t.remove(), 3200); }
+
+const P = {
+  home:'<path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/>',
+  users:'<circle cx="9" cy="8" r="4"/><path d="M2 21c0-4 3-6 7-6s7 2 7 6"/><path d="M16 4a4 4 0 0 1 0 8"/><path d="M22 21c0-3-1.5-5-4-5.6"/>',
+  cal:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
+  wallet:'<rect x="3" y="6" width="18" height="14" rx="2"/><path d="M3 10h18"/><circle cx="16.5" cy="15" r="1.2"/>',
+  file:'<path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/>',
+  mic:'<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/>',
+  gear:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9 7 7M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/>',
+  lock:'<rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>',
+  next:'<path d="m15 6-6 6 6 6"/>', prev:'<path d="m9 6 6 6-6 6"/>',
+  stop:'<rect x="6" y="6" width="12" height="12" rx="2" fill="currentColor"/>',
+  pause:'<path d="M9 5v14M15 5v14"/>',
+  play:'<path d="M7 5l12 7-12 7z" fill="currentColor"/>',
+  trash:'<path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/>',
+  up:'<path d="m6 15 6-6 6 6"/>', down:'<path d="m6 9 6 6 6-6"/>',
+  shield:'<path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/><path d="m9 12 2 2 4-4"/>',
+  cloud:'<path d="M7 18h10a4 4 0 0 0 .5-8 6 6 0 0 0-11.5 1.5A3.5 3.5 0 0 0 7 18z"/>',
+  device:'<rect x="6" y="2" width="12" height="20" rx="2"/><path d="M11 18h2"/>',
+  edit:'<path d="M4 20h4L19 9l-4-4L4 16z"/>',
+  print:'<path d="M7 9V3h10v6M7 17H4v-6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v6h-3"/><rect x="7" y="14" width="10" height="7"/>',
+  group:'<circle cx="12" cy="7" r="3"/><circle cx="5" cy="11" r="2.4"/><circle cx="19" cy="11" r="2.4"/><path d="M7 20c0-3 2.2-5 5-5s5 2 5 5M1.5 19c0-2.2 1.5-3.8 3.5-3.8M22.5 19c0-2.2-1.5-3.8-3.5-3.8"/>',
+  box:'<path d="M3 7.5 12 3l9 4.5v9L12 21l-9-4.5z"/><path d="M3 7.5 12 12l9-4.5M12 12v9"/>',
+  list:'<path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1"/><circle cx="4.5" cy="12" r="1"/><circle cx="4.5" cy="18" r="1"/>',
+  pin:'<path d="M12 21s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12z"/><circle cx="12" cy="9" r="2.5"/>',
+  clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+};
+const ic = (n, cls='ic') => `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${P[n]||''}</svg>`;
+
+/* ---------------- encryption ---------------- */
+const KDF_ITER = 600000;
+async function deriveKey(pass, salt, iter=KDF_ITER){
+  const base = await crypto.subtle.importKey('raw', enc.encode(pass), 'PBKDF2', false, ['deriveKey']);
+  return crypto.subtle.deriveKey({name:'PBKDF2', salt, iterations:iter, hash:'SHA-256'}, base, {name:'AES-GCM', length:256}, false, ['encrypt','decrypt']);
+}
+async function encryptBytes(key, bytes){
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const ct = new Uint8Array(await crypto.subtle.encrypt({name:'AES-GCM', iv}, key, bytes));
+  const out = new Uint8Array(13 + ct.length); out[0] = 1; out.set(iv, 1); out.set(ct, 13); return out;
+}
+async function decryptBytes(key, buf){
+  const b = buf instanceof Uint8Array ? buf : new Uint8Array(buf);
+  if (b[0] !== 1) throw new Error('פורמט הצפנה לא מוכר');
+  return new Uint8Array(await crypto.subtle.decrypt({name:'AES-GCM', iv:b.subarray(1,13)}, key, b.subarray(13)));
+}
+
+/* ---------------- local database (IndexedDB) ---------------- */
+let _idb = null;
+function idb(){
+  if (_idb) return _idb;
+  _idb = new Promise((res, rej) => {
+    const r = indexedDB.open('therapy-vault', 1);
+    r.onupgradeneeded = () => { const d = r.result; d.createObjectStore('files'); d.createObjectStore('recparts'); };
+    r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
+  });
+  return _idb;
+}
+async function idbOp(store, mode, fn){
+  const d = await idb();
+  return new Promise((res, rej) => {
+    const tx = d.transaction(store, mode); const s = tx.objectStore(store); let out;
+    const req = fn(s); if (req) req.onsuccess = () => { out = req.result; };
+    tx.oncomplete = () => res(out); tx.onerror = () => rej(tx.error); tx.onabort = () => rej(tx.error);
+  });
+}
+
+/* ---------------- storage back-ends ---------------- */
+class NeedAuth extends Error { constructor(){ super('יש לחדש את החיבור לגוגל דרייב'); } }
+
+const LocalStore = {
+  kind:'local', label:'המכשיר הזה בלבד',
+  async init(){},
+  async refresh(){},
+  async has(name){ return (await this.get(name)) !== null; },
+  async get(name){ const v = await idbOp('files','readonly', s => s.get(name)); return v ? new Uint8Array(v) : null; },
+  async put(name, bytes){ await idbOp('files','readwrite', s => s.put(bytes, name)); },
+  async del(name){ await idbOp('files','readwrite', s => s.delete(name)); },
+};
+
+const DriveStore = {
+  kind:'drive', label:'גוגל דרייב (תיקייה נסתרת של האפליקציה)', token:null, exp:0, client:null, ids:{},
+  loadGis(){
+    return new Promise((res, rej) => {
+      if (window.google?.accounts?.oauth2) return res();
+      const s = document.createElement('script'); s.src = 'https://accounts.google.com/gsi/client';
+      s.onload = () => res(); s.onerror = () => rej(new Error('לא ניתן לטעון את רכיב ההתחברות של גוגל. בדקי חיבור לאינטרנט.'));
+      document.head.appendChild(s);
+    });
+  },
+  async init(){
+    await this.loadGis();
+    this.client = google.accounts.oauth2.initTokenClient({ client_id: CFG.clientId, scope: SCOPES(), callback: () => {} });
+    await this.auth();
+    await this.refresh();
+  },
+  auth(){
+    return new Promise((res, rej) => {
+      this.client.callback = r => {
+        if (r.error) return rej(new Error('ההתחברות לגוגל נכשלה: ' + r.error));
+        this.token = r.access_token; this.exp = Date.now() + (Number(r.expires_in||3600) - 120) * 1000; APP.needAuth = false; res();
+      };
+      this.client.error_callback = e => rej(new Error(e?.type === 'popup_closed' ? 'חלון ההתחברות נסגר' : 'ההתחברות לגוגל נכשלה'));
+      this.client.requestAccessToken({ prompt: '' });
+    });
+  },
+  async api(url, opts={}){
+    if (!this.token || Date.now() > this.exp) { APP.needAuth = true; throw new NeedAuth(); }
+    opts.headers = Object.assign({ Authorization: 'Bearer ' + this.token }, opts.headers || {});
+    const r = await fetch(url, opts);
+    if (r.status === 401) { this.token = null; APP.needAuth = true; throw new NeedAuth(); }
+    if (!r.ok) { let m = ''; try { m = (await r.json()).error?.message || ''; } catch {} throw new Error('שגיאה מול גוגל (' + r.status + ')' + (m ? ': ' + m.slice(0, 160) : '')); }
+    return r;
+  },
+  async refresh(){
+    const ids = {}; let pt = '';
+    do {
+      const r = await this.api('https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&pageSize=1000&fields=nextPageToken,files(id,name)' + (pt ? '&pageToken=' + encodeURIComponent(pt) : ''));
+      const j = await r.json(); for (const f of j.files || []) ids[f.name] = f.id; pt = j.nextPageToken || '';
+    } while (pt);
+    this.ids = ids;
+  },
+  async has(name){ return !!this.ids[name]; },
+  async get(name){
+    const id = this.ids[name]; if (!id) return null;
+    const r = await this.api(`https://www.googleapis.com/drive/v3/files/${id}?alt=media`);
+    return new Uint8Array(await r.arrayBuffer());
+  },
+  async put(name, bytes){
+    const id = this.ids[name];
+    const meta = id ? {} : { name, parents: ['appDataFolder'] };
+    const url = id ? `https://www.googleapis.com/upload/drive/v3/files/${id}?uploadType=resumable&fields=id`
+                   : 'https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable&fields=id';
+    const r = await this.api(url, { method: id ? 'PATCH' : 'POST', headers: { 'Content-Type':'application/json; charset=UTF-8', 'X-Upload-Content-Type':'application/octet-stream' }, body: JSON.stringify(meta) });
+    const loc = r.headers.get('Location');
+    if (!loc) return this.putMultipart(name, bytes);
+    const r2 = await this.api(loc, { method:'PUT', headers:{ 'Content-Type':'application/octet-stream' }, body: bytes });
+    const j = await r2.json(); this.ids[name] = j.id;
+  },
+  async putMultipart(name, bytes){
+    const id = this.ids[name]; const boundary = 'tv' + uid().replace(/-/g,'');
+    const meta = JSON.stringify(id ? {} : { name, parents:['appDataFolder'] });
+    const body = new Blob([`--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${meta}\r\n--${boundary}\r\nContent-Type: application/octet-stream\r\n\r\n`, bytes, `\r\n--${boundary}--`]);
+    const url = id ? `https://www.googleapis.com/upload/drive/v3/files/${id}?uploadType=multipart&fields=id` : 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id';
+    const r = await this.api(url, { method: id ? 'PATCH' : 'POST', headers:{ 'Content-Type':`multipart/related; boundary=${boundary}` }, body });
+    const j = await r.json(); this.ids[name] = j.id;
+  },
+  async del(name){ const id = this.ids[name]; if (!id) return; await this.api(`https://www.googleapis.com/drive/v3/files/${id}`, { method:'DELETE' }); delete this.ids[name]; },
+};
+
+/* ---------------- vault & data model ---------------- */
+const VAULT = 'vault.json', DBFILE = 'db.bin', PENDING = 'pending-db.bin';
+const COLS = ['patients','appts','payments','templates','responses','sessions','groups','plans','equipment'];
+function emptyDb(){ const d = { v:1, settings:{} }; COLS.forEach(c => d[c] = {}); return d; }
+function normDb(d){ const e = emptyDb(); for (const c of COLS) e[c] = Object.assign({}, d?.[c] || {}); e.settings = Object.assign({}, d?.settings || {}); return e; }
+function mergeDb(a, b){
+  const out = emptyDb();
+  for (const c of COLS){
+    const ids = new Set([...Object.keys(a[c]||{}), ...Object.keys(b[c]||{})]);
+    for (const id of ids){ const x = a[c]?.[id], y = b[c]?.[id]; out[c][id] = !x ? y : !y ? x : ((y.updatedAt||0) > (x.updatedAt||0) ? y : x); }
+  }
+  out.settings = Object.assign({}, b.settings, a.settings);
+  return out;
+}
+async function readEncDb(name){
+  const bytes = await APP.store.get(name);
+  if (!bytes) return null;
+  return normDb(JSON.parse(dec.decode(await decryptBytes(APP.key, bytes))));
+}
+async function createVault(pass){
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const key = await deriveKey(pass, salt);
+  const check = await encryptBytes(key, enc.encode('therapy-vault-ok'));
+  const meta = { v:1, kdf:'PBKDF2-SHA256', iter:KDF_ITER, salt:b64e(salt), check:b64e(check), created:new Date().toISOString() };
+  await APP.store.put(VAULT, enc.encode(JSON.stringify(meta)));
+  APP.key = key; APP.db = emptyDb(); seedTemplates(); APP.ver++;
+  await saveNow();
+}
+async function openVault(pass){
+  await APP.store.refresh();
+  const raw = await APP.store.get(VAULT);
+  if (!raw) throw new Error('לא נמצא מידע של האפליקציה בחשבון הזה. ייתכן שהתחברת עם חשבון גוגל אחר.');
+  const meta = JSON.parse(dec.decode(raw));
+  const key = await deriveKey(pass, b64d(meta.salt), meta.iter || KDF_ITER);
+  try { const c = await decryptBytes(key, b64d(meta.check)); if (dec.decode(c) !== 'therapy-vault-ok') throw 0; }
+  catch { throw new Error('הסיסמה שגויה'); }
+  APP.key = key;
+  APP.db = (await readEncDb(DBFILE)) || emptyDb();
+  // שינויים שלא הספיקו לעלות לדרייב בפעם הקודמת (נשמרו מוצפנים במכשיר)
+  try {
+    const p = await LocalStore.get(PENDING);
+    if (p && APP.store.kind === 'drive') {
+      const pend = normDb(JSON.parse(dec.decode(await decryptBytes(key, p))));
+      APP.db = mergeDb(pend, APP.db); APP.ver++; scheduleSave();
+    }
+  } catch(e) { console.warn('pending merge', e); }
+  APP.savedVer = APP.ver;
+}
+
+const all = c => Object.values(APP.db?.[c] || {}).filter(r => r && !r.deleted);
+const get = (c, id) => { const r = APP.db?.[c]?.[id]; return r && !r.deleted ? r : null; };
+function upsert(c, rec){
+  rec.id ||= uid(); rec.createdAt ||= Date.now(); rec.updatedAt = Date.now();
+  APP.db[c][rec.id] = rec; markDirty(); return rec;
+}
+function removeRec(c, id){ if (APP.db[c][id]) { APP.db[c][id] = { id, deleted:true, updatedAt:Date.now() }; markDirty(); } }
+
+/* ---------------- saving & sync ---------------- */
+function markDirty(){ APP.ver++; setSync('pending'); scheduleSave(); }
+function scheduleSave(){ clearTimeout(APP.saveTimer); APP.saveTimer = setTimeout(() => saveNow().catch(()=>{}), 1200); }
+function saveNow(){
+  const run = async () => {
+    if (!APP.key || !APP.db) return;
+    const v = APP.ver; const key = APP.key;
+    setSync('saving');
+    try {
+      if (APP.store.kind === 'drive') {
+        // קודם עותק מוצפן מקומי, כדי ששום שינוי לא ילך לאיבוד אם אין חיבור
+        await LocalStore.put(PENDING, await encryptBytes(key, enc.encode(JSON.stringify(APP.db))));
+        await APP.store.refresh();
+        const remote = await readEncDb(DBFILE);
+        if (remote) APP.db = mergeDb(APP.db, remote);
+      }
+      await APP.store.put(DBFILE, await encryptBytes(key, enc.encode(JSON.stringify(APP.db))));
+      if (APP.store.kind === 'drive' && APP.ver === v) await LocalStore.del(PENDING);
+      if (APP.ver === v) { APP.savedVer = v; setSync('saved'); } else setSync('pending');
+      scheduleOutboxSync();
+    } catch (e) {
+      console.error(e); setSync('error', e);
+      throw e;
+    }
+  };
+  APP.saving = APP.saving.catch(()=>{}).then(run);
+  return APP.saving;
+}
+async function pullRemote(){
+  if (!APP.key || APP.store.kind !== 'drive' || APP.kiosk) return;
+  try {
+    await APP.saving.catch(()=>{});
+    await APP.store.refresh();
+    const remote = await readEncDb(DBFILE);
+    if (remote) { APP.db = mergeDb(APP.db, remote); if (!$('#dlg').open) render(); }
+  } catch(e) { if (e instanceof NeedAuth) setSync('error', e); }
+}
+function setSync(s, err){
+  APP.sync = s; const el = $('#sync'); if (!el) return;
+  const txt = { saved:'נשמר', pending:'ממתין לשמירה', saving:'שומר…', error: err instanceof NeedAuth || APP.needAuth ? 'החיבור לדרייב פג' : 'שגיאת שמירה' }[s];
+  el.className = 'sync ' + s;
+  el.innerHTML = `<span class="d"></span><span>${txt}</span>` + (s === 'error' && APP.needAuth ? ` <button class="btn sm" data-act="reauth">חיבור מחדש</button>` : s === 'error' ? ` <button class="btn sm" data-act="retrysave">ניסיון חוזר</button>` : '');
+}
+
+/* ---------------- lock / unlock ---------------- */
+async function lock(){
+  if (APP.rec) { toast('לא ניתן לנעול בזמן הקלטה'); return; }
+  if (APP.ver !== APP.savedVer) { clearTimeout(APP.saveTimer); try { await saveNow(); } catch {} }
+  APP.key = null; APP.db = null; APP.kiosk = null; APP.tdraft = null;
+  if (APP.audioUrl) { URL.revokeObjectURL(APP.audioUrl); APP.audioUrl = null; }
+  if ($('#dlg').open) $('#dlg').close();
+  $('#printarea').innerHTML = '';
+  showUnlock();
+}
+setInterval(() => {
+  if (!APP.key || APP.rec || APP.trJob || Object.keys(APP.trLive).length || (APP.kiosk && !APP.kiosk.done)) return;
+  const mins = +(APP.db?.settings?.autoLock || CFG.autoLockMinutes || 10);
+  if (Date.now() - APP.lastActivity > mins * 60000) lock();
+}, 15000);
+['pointerdown','keydown','touchstart','wheel'].forEach(ev => addEventListener(ev, () => { APP.lastActivity = Date.now(); }, { passive:true }));
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') pullRemote(); });
+addEventListener('beforeunload', e => { if (APP.rec || (APP.key && APP.ver !== APP.savedVer)) { e.preventDefault(); e.returnValue = ''; } });
+
+/* ---------------- gate screens ---------------- */
+function gate(html){ $('#root').innerHTML = `<div class="gate"><div class="box">${html}</div></div>`; }
+
+function showStart(){
+  const hasGoogle = !!CFG.clientId;
+  gate(`
+    <div class="logo">${ic('shield')}</div>
+    <h1>${esc(CFG.appName)}</h1>
+    <p class="muted" style="margin:0">כל המידע מוצפן על המכשיר לפני שהוא נשמר. בלי הסיסמה שלך אי אפשר לקרוא אותו — גם לא גוגל.</p>
+    ${hasGoogle ? `<button class="btn pri" data-act="pickstore" data-kind="drive">${ic('cloud')} התחברות עם גוגל דרייב</button>` :
+      `<div class="notice warn">החיבור לגוגל עוד לא הוגדר (שדה clientId בקובץ config.js). בינתיים אפשר לנסות את האפליקציה במצב מקומי.</div>`}
+    <button class="btn" data-act="pickstore" data-kind="local">${ic('device')} מצב מקומי — המכשיר הזה בלבד</button>
+    <p class="small muted" style="margin:0">במצב מקומי המידע נשמר מוצפן רק בדפדפן הזה ולא מגובה. מתאים לניסיון.</p>
+    <div id="gerr" class="err"></div>`);
+}
+
+async function pickStore(kind){
+  const err = $('#gerr'); if (err) err.textContent = '';
+  try {
+    APP.store = kind === 'drive' ? DriveStore : LocalStore;
+    await APP.store.init();
+    try { localStorage.setItem('tv-store', kind); } catch {}
+    if (await APP.store.has(VAULT)) showUnlock(); else showCreate();
+  } catch (e) { APP.store = null; if (err) err.textContent = e.message; else toast(e.message, 'err'); }
+}
+
+function showCreate(){
+  gate(`
+    <div class="logo">${ic('lock')}</div>
+    <h1>יצירת סיסמת הצפנה</h1>
+    <p class="muted" style="margin:0">הסיסמה הזו מצפינה את כל המידע. <b>אין דרך לשחזר אותה</b> — אם תשכחי אותה, המידע לא יהיה נגיש. כדאי לשמור אותה במנהל סיסמאות או במקום בטוח.</p>
+    <form id="gform" class="grid" style="gap:12px">
+      <label class="f">סיסמה (לפחות 10 תווים)<input type="password" name="p1" minlength="10" required autocomplete="new-password"></label>
+      <label class="f">אימות סיסמה<input type="password" name="p2" minlength="10" required autocomplete="new-password"></label>
+      <label class="check"><input type="checkbox" name="ack" required> הבנתי שאי אפשר לשחזר את הסיסמה</label>
+      <button class="btn pri" type="submit">יצירה והתחלה</button>
+    </form>
+    <div id="gerr" class="err"></div>`);
+  $('#gform').onsubmit = async e => {
+    e.preventDefault(); const f = new FormData(e.target);
+    if (f.get('p1') !== f.get('p2')) { $('#gerr').textContent = 'הסיסמאות אינן זהות'; return; }
+    const btn = e.target.querySelector('button'); btn.disabled = true; btn.textContent = 'יוצר…';
+    try { await createVault(f.get('p1')); afterUnlock(); } catch (er) { $('#gerr').textContent = er.message; btn.disabled = false; btn.textContent = 'יצירה והתחלה'; }
+  };
+}
+
+function showUnlock(){
+  gate(`
+    <div class="logo">${ic('lock')}</div>
+    <h1>${esc(CFG.appName)}</h1>
+    <p class="muted" style="margin:0">האפליקציה נעולה. ${APP.store ? 'אחסון: ' + esc(APP.store.label) : ''}</p>
+    <form id="gform" class="grid" style="gap:12px">
+      <label class="f">סיסמה<input type="password" name="p" required autocomplete="current-password" autofocus></label>
+      <button class="btn pri" type="submit">פתיחה</button>
+    </form>
+    <div id="gerr" class="err"></div>
+    <button class="btn ghost sm" data-act="switchstore">החלפת אחסון / התנתקות</button>`);
+  setTimeout(() => $('#gform input')?.focus(), 50);
+  $('#gform').onsubmit = async e => {
+    e.preventDefault(); const pass = new FormData(e.target).get('p');
+    const btn = e.target.querySelector('button'); btn.disabled = true; btn.textContent = 'פותח…';
+    try {
+      if (!APP.store) throw new Error('יש לבחור אחסון');
+      if (APP.store.kind === 'drive') {
+        if (!DriveStore.client) await DriveStore.init();
+        else if (!DriveStore.token || Date.now() > DriveStore.exp) await DriveStore.auth();
+      }
+      await openVault(pass); afterUnlock();
+    } catch (er) { $('#gerr').textContent = er.message; btn.disabled = false; btn.textContent = 'פתיחה'; }
+  };
+}
+
+async function afterUnlock(){
+  APP.lastActivity = Date.now();
+  APP.remStatus = null; scheduleOutboxSync(); refreshRemStatus();
+  await checkRecovery();
+  if (!location.hash || location.hash === '#/' || location.hash === '#/kiosk') history.replaceState(null, '', location.pathname + location.search + '#/home');
+  render();
+}
+
+/* ---------------- shell & router ---------------- */
+const NAV = [
+  ['home','בית','home'], ['patients','מטופלים','users'], ['groups','קבוצות','group'], ['calendar','יומן','cal'], ['payments','תשלומים','wallet'],
+  ['forms','טפסים','file'], ['sessions','תיעוד','mic'], ['settings','הגדרות','gear']
+];
+function shell(){
+  if ($('#shell')) return;
+  $('#root').innerHTML = `
+  <div class="app" id="shell">
+    <aside class="side">
+      <div class="brand"><span class="dot">${ic('shield')}</span>${esc(CFG.appName)}</div>
+      <nav class="nav">${NAV.map(([r,l,i]) => `<a href="#/${r}" data-r="${r}">${ic(i)}${l}</a>`).join('')}</nav>
+      <div class="grow"></div>
+      <button class="btn ghost" data-act="lock">${ic('lock')} נעילה</button>
+    </aside>
+    <div class="content">
+      <header class="top">
+        <h1 id="ttl"></h1>
+        <span id="recpill"></span>
+        <div id="sync" class="sync"></div>
+        <a class="iconbtn mobile-only" href="#/settings" title="הגדרות">${ic('gear')}</a>
+        <button class="iconbtn" data-act="lock" title="נעילה">${ic('lock')}</button>
+      </header>
+      <main id="main"></main>
+    </div>
+    <nav class="bottom">${NAV.filter(n => n[0] !== 'settings').map(([r,l,i]) => `<a href="#/${r}" data-r="${r}">${ic(i)}<span>${l}</span></a>`).join('')}</nav>
+  </div>`;
+  setSync(APP.sync);
+}
+function route(){ const h = location.hash.replace(/^#\/?/, ''); const [name, ...rest] = h.split('/'); return { name: name || 'home', arg: rest.join('/') }; }
+addEventListener('hashchange', () => {
+  if (APP.kiosk) { lock(); return; }  // יציאה ממצב מילוי טופס מחייבת סיסמה
+  if (APP.key) render();
+});
+const VIEWS = {};
+function render(){
+  if (!APP.key) return;
+  if (APP.kiosk) return renderKiosk();
+  shell();
+  const { name, arg } = route();
+  const navKey = { patient:'patients', form:'forms', session:'sessions', group:'groups' }[name] || name;
+  $$('[data-r]').forEach(a => a.classList.toggle('on', a.dataset.r === navKey));
+  const v = VIEWS[name] || VIEWS.home;
+  const out = v(arg);
+  $('#ttl').textContent = out.title;
+  $('#main').innerHTML = out.html;
+  out.after && out.after();
+  updateRecPill();
+}
+
+/* ---------------- dialog helper ---------------- */
+function openDialog({ title, body, submit='שמירה', onSubmit, onCancel, extra='', wide=false }){
+  const d = $('#dlg');
+  if (d.open) d.close();
+  d.style.width = wide ? 'min(860px,calc(100vw - 24px))' : '';
+  d.innerHTML = `<form class="d" method="dialog" novalidate>
+      <div class="dh"><span>${title}</span><span class="sp"></span><button type="button" class="iconbtn" data-close aria-label="סגירה">✕</button></div>
+      <div class="dbody">${body}</div>
+      <div class="df">${extra}<span class="sp"></span><button type="button" class="btn" data-close>ביטול</button>${onSubmit ? `<button type="submit" class="btn pri">${submit}</button>` : ''}</div>
+    </form>`;
+  const form = d.querySelector('form');
+  d.querySelectorAll('[data-close]').forEach(b => b.onclick = () => { onCancel && onCancel(); d.close(); });
+  d.oncancel = () => { onCancel && onCancel(); };
+  form.onsubmit = async e => {
+    e.preventDefault();
+    if (!form.checkValidity()) { form.reportValidity(); return; }
+    try { const r = await onSubmit(new FormData(form), form); if (r !== false) { d.close(); render(); } }
+    catch (er) { toast(er.message, 'err'); }
+  };
+  d.showModal();
+  return d;
+}
+const confirmDlg = (msg, yes='מחיקה') => new Promise(res => {
+  openDialog({ title:'אישור', body:`<p style="margin:0">${msg}</p>`, submit:yes, onSubmit:() => { res(true); }, onCancel:() => res(false) });
+});
+
+/* ---------------- domain helpers ---------------- */
+const gname = id => get('groups', id)?.name || '(קבוצה שנמחקה)';
+const subj = s => s.groupId ? gname(s.groupId) : pname(s.patientId);
+const pname = id => { const p = get('patients', id); return p ? `${p.firstName||''} ${p.lastName||''}`.trim() : '(מטופל/ת שנמחק/ה)'; };
+const initials = p => ((p.firstName||'')[0]||'') + ((p.lastName||'')[0]||'');
+const activePatients = () => all('patients').filter(p => p.status !== 'inactive').sort((a,b) => pname(a.id).localeCompare(pname(b.id), 'he'));
+const STATUS = { scheduled:'מתוכנן', done:'התקיים', noshow:'לא הגיע/ה (בחיוב)', cancelled:'בוטל' };
+const CHARGED = ['done','noshow'];
+const METHODS = ['מזומן','העברה בנקאית','ביט','פייבוקס','אשראי',"צ'ק",'אחר'];
+const apptPaid = a => all('payments').filter(p => p.apptId === a.id).reduce((s,p) => s + (+p.amount||0), 0);
+function payChip(a){
+  const paid = apptPaid(a), fee = +a.fee || 0;
+  if (a.status === 'cancelled') return '';
+  if (!CHARGED.includes(a.status)) return paid > 0 ? `<span class="chip ok">שולם מראש</span>` : '';
+  if (fee === 0 || paid >= fee) return `<span class="chip ok">שולם</span>`;
+  if (paid > 0) return `<span class="chip warn">שולם חלקית</span>`;
+  return `<span class="chip warn">לא שולם</span>`;
+}
+function balance(pid){
+  const charged = all('appts').filter(a => a.patientId === pid && CHARGED.includes(a.status)).reduce((s,a) => s + (+a.fee||0), 0);
+  const paid = all('payments').filter(p => p.patientId === pid).reduce((s,p) => s + (+p.amount||0), 0);
+  return { charged, paid, due: charged - paid };
+}
+const patientOptions = (sel) => `<option value="">בחירת מטופל/ת…</option>` + activePatients().map(p => `<option value="${p.id}" ${p.id===sel?'selected':''}>${esc(pname(p.id))}</option>`).join('');
+
+/* =====================================================================
+   VIEW: home
+   ===================================================================== */
+VIEWS.home = () => {
+  const today = ymd(new Date());
+  const todays = all('appts').filter(a => a.start?.startsWith(today)).sort((a,b) => a.start.localeCompare(b.start));
+  const owing = activePatients().map(p => ({ p, b: balance(p.id) })).filter(x => x.b.due > 0).sort((a,b) => b.b.due - a.b.due);
+  const totalDue = owing.reduce((s,x) => s + x.b.due, 0);
+  const month = today.slice(0,7);
+  const monthIncome = all('payments').filter(p => (p.date||'').startsWith(month)).reduce((s,p) => s + (+p.amount||0), 0);
+  const recBanner = APP.recovery.length ? `<div class="notice warn" style="margin-bottom:16px">${ic('mic')}<div style="flex:1"><b>נמצאה הקלטה שלא הסתיימה או לא עלתה.</b> ההקלטה שמורה מוצפנת במכשיר הזה.<div style="margin-top:8px"><button class="btn sm pri" data-act="recover">שחזור והעלאה</button></div></div></div>` : '';
+  const dueRem = remCfg().enabled ? computeReminders(2).filter(r => remState(r).k === 'due') : [];
+  const remCard = dueRem.length ? `<div class="card" style="margin-bottom:16px"><h2>תזכורות לשליחה עכשיו<span class="sp"></span><span class="chip warn">${dueRem.length}</span><a class="btn sm" href="#/calendar" data-act="calview" data-v="rem">לכל התזכורות</a></h2><div class="list">${dueRem.slice(0, 6).map(remRow).join('')}</div></div>` : '';
+  const localBanner = APP.store.kind === 'local' ? `<div class="notice" style="margin-bottom:16px">${ic('device')}<div>את במצב מקומי: המידע שמור מוצפן רק בדפדפן הזה ואינו מגובה. לשימוש אמיתי מומלץ לחבר את גוגל דרייב.</div></div>` : '';
+  return { title:'בית', html: `${recBanner}${localBanner}${remCard}
+    <div class="grid g3" style="margin-bottom:16px">
+      <div class="card"><div class="stat-l">פגישות היום</div><div class="stat num">${todays.filter(a=>a.status!=='cancelled').length}</div></div>
+      <div class="card"><div class="stat-l">הכנסות החודש</div><div class="stat num">${money(monthIncome)}</div></div>
+      <div class="card"><div class="stat-l">יתרות פתוחות</div><div class="stat num" style="color:${totalDue>0?'var(--warn)':'inherit'}">${money(totalDue)}</div></div>
+    </div>
+    <div class="grid g2">
+      <div class="card">
+        <h2>היום, ${new Date().toLocaleDateString('he-IL',{weekday:'long', day:'numeric', month:'long'})}<span class="sp"></span><button class="btn sm" data-act="newappt" data-date="${today}">${ic('plus')} פגישה</button></h2>
+        <div class="list">${todays.length || groupsOn(today).length ? [...todays.map(a => ({ t: a.start.slice(11), h: apptRow(a) })), ...groupsOn(today).map(g => ({ t: g.time || '', h: `<div class="item" data-act="groupslot" data-id="${g.id}" data-date="${today}"><div class="num" style="font-weight:700;min-width:48px">${esc(g.time || '')}</div><div class="main"><div class="t">${ic('group','ic ic-s')} ${esc(g.name)}</div><div class="small muted">${groupMembers(g).length} משתתפים${g.location ? ' · ' + esc(g.location) : ''}</div></div><span class="chip info">קבוצה</span></div>` }))].sort((x, y) => x.t.localeCompare(y.t)).map(x => x.h).join('') : `<div class="empty">אין פגישות היום</div>`}</div>
+      </div>
+      <div class="card">
+        <h2>ממתינים לתשלום</h2>
+        <div class="list">${owing.length ? owing.slice(0,8).map(x => `<a class="item" href="#/patient/${x.p.id}"><div class="avatar">${esc(initials(x.p))}</div><div class="main"><div class="t">${esc(pname(x.p.id))}</div></div><span class="num" style="color:var(--warn);font-weight:700">${money(x.b.due)}</span></a>`).join('') : `<div class="empty">אין חובות פתוחים</div>`}</div>
+      </div>
+    </div>` };
+};
+function apptRow(a){
+  const t = hm(parseLocal(a.start));
+  return `<div class="item" data-act="editappt" data-id="${a.id}">
+    <div class="num" style="font-weight:700;min-width:48px">${t}</div>
+    <div class="main"><div class="t">${esc(pname(a.patientId))}</div><div class="small muted">${a.duration||50} דק׳ · ${money(a.fee)}</div></div>
+    <div class="row" style="gap:6px"><span class="chip ${a.status==='done'?'ok':a.status==='noshow'?'warn':a.status==='cancelled'?'':'info'}">${STATUS[a.status]||''}</span>${payChip(a)}</div>
+  </div>`;
+}
+
+/* =====================================================================
+   VIEW: patients
+   ===================================================================== */
+VIEWS.patients = () => {
+  const showInactive = APP.showInactive;
+  const ps = all('patients').filter(p => showInactive || p.status !== 'inactive').sort((a,b) => pname(a.id).localeCompare(pname(b.id), 'he'));
+  return { title:'מטופלים', html: `
+    <div class="row" style="margin-bottom:14px">
+      <input type="search" id="psearch" placeholder="חיפוש לפי שם או טלפון…" style="max-width:340px">
+      <label class="check small"><input type="checkbox" data-act="toggleinactive" ${showInactive?'checked':''}> הצגת לא פעילים</label>
+      <span class="sp"></span>
+      <button class="btn pri" data-act="newpatient">${ic('plus')} מטופל/ת חדש/ה</button>
+    </div>
+    <div class="card"><div class="list" id="plist">${ps.length ? ps.map(p => {
+      const b = balance(p.id);
+      return `<a class="item" href="#/patient/${p.id}" data-s="${esc((pname(p.id)+' '+(p.phone||'')).toLowerCase())}">
+        <div class="avatar">${esc(initials(p))}</div>
+        <div class="main"><div class="t">${esc(pname(p.id))} ${p.status==='inactive'?'<span class="chip">לא פעיל/ה</span>':''}</div><div class="small muted">${esc(p.phone||'')}</div></div>
+        ${b.due > 0 ? `<span class="chip warn">חוב ${money(b.due)}</span>` : ''}
+      </a>`; }).join('') : `<div class="empty">עוד אין מטופלים. התחילי בהוספת מטופל/ת ראשון/ה.</div>`}</div></div>`,
+    after(){ const s = $('#psearch'); s && (s.oninput = () => { const q = s.value.trim().toLowerCase(); $$('#plist .item').forEach(it => it.style.display = !q || it.dataset.s.includes(q) ? '' : 'none'); }); }
+  };
+};
+
+function contactRow(c={}){
+  return `<div class="fcard crow">
+    <div class="fgrid">
+      <label class="f">שם<input type="text" data-c="name" value="${esc(c.name)}"></label>
+      <label class="f">קרבה / תפקיד<input type="text" data-c="relation" value="${esc(c.relation)}" placeholder="הורה, בן/בת זוג, פסיכיאטר…"></label>
+      <label class="f">טלפון<input type="tel" data-c="phone" value="${esc(c.phone)}"></label>
+      <label class="f">אימייל<input type="email" data-c="email" value="${esc(c.email)}"></label>
+      <label class="f full">הערה<input type="text" data-c="notes" value="${esc(c.notes)}"></label>
+      <label class="check full remv"><input type="checkbox" data-c="remind" ${c.remind ? 'checked' : ''}> <span><b>V — לשלוח לאיש הקשר הזה תזכורות לפני פגישות</b><br><span class="small muted">בווטסאפ (לפי הטלפון) ובמייל (לפי האימייל)</span></span></label>
+    </div>
+    <div><button type="button" class="btn sm danger" data-act="delcontact">${ic('trash')} הסרת איש קשר</button></div>
+  </div>`;
+}
+function patientDialog(id, opts={}){
+  const p = id ? structuredClone(get('patients', id)) : { status:'active', fee: APP.db.settings.defaultFee || '', contacts:[] };
+  openDialog({
+    title: id ? 'עריכת פרטי מטופל/ת' : (opts.title || 'מטופל/ת חדש/ה'), wide:true,
+    body: `
+      <div class="fgrid">
+        <label class="f">שם פרטי *<input type="text" name="firstName" required value="${esc(p.firstName)}"></label>
+        <label class="f">שם משפחה<input type="text" name="lastName" value="${esc(p.lastName)}"></label>
+        <label class="f">תעודת זהות<input type="text" name="idNumber" inputmode="numeric" value="${esc(p.idNumber)}"></label>
+        <label class="f">תאריך לידה<input type="date" name="birthDate" value="${esc(p.birthDate)}"></label>
+        <label class="f">טלפון<input type="tel" name="phone" value="${esc(p.phone)}"></label>
+        <label class="f">אימייל<input type="email" name="email" value="${esc(p.email)}"></label>
+        <label class="f full">כתובת<input type="text" name="address" value="${esc(p.address)}"></label>
+        <label class="f">תאריך תחילת טיפול<input type="date" name="startDate" value="${esc(p.startDate || ymd(new Date()))}"></label>
+        <label class="f">מחיר לפגישה (₪)<input type="number" name="fee" min="0" step="1" value="${esc(p.fee)}"></label>
+        <label class="f">סטטוס<select name="status"><option value="active" ${p.status!=='inactive'?'selected':''}>פעיל/ה</option><option value="inactive" ${p.status==='inactive'?'selected':''}>לא פעיל/ה (סיום טיפול)</option></select></label>
+        <label class="f full">הערות כלליות<textarea name="notes">${esc(p.notes)}</textarea></label>
+        <label class="check full"><input type="checkbox" name="remindSelf" ${p.remindSelf ? 'checked' : ''}> לשלוח תזכורות גם למטופל/ת עצמו/ה</label>
+      </div>
+      <div><div class="row"><b>אנשי קשר</b><span class="sp"></span><button type="button" class="btn sm" data-act="addcontact">${ic('plus')} הוספה</button></div>
+      <div id="contacts" style="margin-top:10px">${(p.contacts||[]).map(contactRow).join('')}</div></div>`,
+    extra: id ? `<button type="button" class="btn danger" data-act="delpatient" data-id="${id}">${ic('trash')} מחיקה</button>` : '',
+    onSubmit(fd, form){
+      const rec = Object.assign(p, Object.fromEntries(['firstName','lastName','idNumber','birthDate','phone','email','address','startDate','fee','status','notes'].map(k => [k, (fd.get(k)||'').toString().trim()])));
+      rec.contacts = $$('.crow', form).map(r => Object.fromEntries($$('[data-c]', r).map(i => [i.dataset.c, i.type === 'checkbox' ? i.checked : i.value.trim()]))).filter(c => c.name || c.phone || c.email);
+      rec.remindSelf = !!form.querySelector('[name=remindSelf]')?.checked;
+      const saved = upsert('patients', rec);
+      if (!id && opts.onCreated) opts.onCreated(saved);
+      else if (!id) location.hash = '#/patient/' + saved.id;
+    }
+  });
+}
+
+VIEWS.patient = (id) => {
+  const p = get('patients', id);
+  if (!p) return { title:'מטופלים', html:`<div class="empty">המטופל/ת לא נמצא/ה. <a href="#/patients">חזרה לרשימה</a></div>` };
+  const b = balance(id);
+  const appts = all('appts').filter(a => a.patientId === id).sort((a,b) => b.start.localeCompare(a.start));
+  const pays = all('payments').filter(x => x.patientId === id).sort((a,b) => (b.date||'').localeCompare(a.date||''));
+  const resps = all('responses').filter(r => r.patientId === id).sort((a,b) => (b.submittedAt||0) - (a.submittedAt||0));
+  const pgroups = all('groups').filter(g => (g.memberIds||[]).includes(id));
+  const sess = all('sessions').filter(s => s.patientId === id || (s.groupId && attendedBy(s, id))).sort((a,b) => (b.date||'').localeCompare(a.date||''));
+  const age = p.birthDate ? Math.floor((Date.now() - parseLocal(p.birthDate)) / 31557600000) : null;
+  const tab = APP.ptab || 'details';
+  const tabs = [['details','פרטים'],['appts',`פגישות ותשלומים`],['forms',`טפסים (${resps.length})`],['sessions',`טיפולים והקלטות (${sess.length})`]];
+  let body = '';
+  if (tab === 'details') body = `
+    <div class="grid g2">
+      <div class="card"><h2>פרטים אישיים<span class="sp"></span><button class="btn sm" data-act="editpatient" data-id="${id}">${ic('edit')} עריכה</button></h2>
+        <table class="t"><tbody>
+          ${[['ת״ז', p.idNumber], ['תאריך לידה', p.birthDate ? fmtDate(p.birthDate,{day:'numeric',month:'numeric',year:'numeric'}) + (age!==null?` (גיל ${age})`:'') : ''], ['טלפון', p.phone ? `<a href="tel:${esc(p.phone)}">${esc(p.phone)}</a>` : ''], ['אימייל', p.email ? `<a href="mailto:${esc(p.email)}">${esc(p.email)}</a>` : ''], ['כתובת', esc(p.address)], ['תחילת טיפול', p.startDate ? fmtDate(p.startDate,{day:'numeric',month:'numeric',year:'numeric'}) : ''], ['מחיר לפגישה', p.fee ? money(p.fee) : '']]
+            .map(([k,v]) => `<tr><td class="muted" style="width:120px">${k}</td><td>${k==='ת״ז'?esc(v):v||'<span class="muted">—</span>'}</td></tr>`).join('')}
+        </tbody></table>
+        ${p.notes ? `<p style="white-space:pre-wrap;margin:12px 0 0">${esc(p.notes)}</p>` : ''}
+      </div>
+      ${pgroups.length ? `<div class="card"><h2>${ic('group')} קבוצות</h2><div class="list">${pgroups.map(g => `<a class="item" href="#/group/${g.id}"><div class="avatar">${ic('group')}</div><div class="main"><div class="t">${esc(g.name)}</div><div class="small muted">${esc(groupWhen(g))}</div></div>${g.status === 'ended' ? '<span class="chip">הסתיימה</span>' : ''}</a>`).join('')}</div></div>` : ''}
+      <div class="card"><h2>אנשי קשר<span class="sp"></span><button class="btn sm" data-act="editpatient" data-id="${id}">${ic('edit')} עריכה</button></h2>
+        <div class="list">${(p.contacts||[]).length ? p.contacts.map(c => `<div class="item" style="cursor:default"><div class="main"><div class="t">${esc(c.name)} ${c.relation?`<span class="chip">${esc(c.relation)}</span>`:''} ${c.remind ? '<span class="chip ok" title="מקבל/ת תזכורות">✓ תזכורות</span>' : ''}</div>
+          <div class="small muted">${[c.phone?`<a href="tel:${esc(c.phone)}">${esc(c.phone)}</a>`:'', c.email?`<a href="mailto:${esc(c.email)}">${esc(c.email)}</a>`:'', esc(c.notes)].filter(Boolean).join(' · ')}</div></div></div>`).join('') : `<div class="empty">אין אנשי קשר</div>`}</div>
+      </div>
+    </div>`;
+  if (tab === 'appts') body = `
+    <div class="grid g3" style="margin-bottom:16px">
+      <div class="card"><div class="stat-l">חויב</div><div class="stat num">${money(b.charged)}</div></div>
+      <div class="card"><div class="stat-l">שולם</div><div class="stat num">${money(b.paid)}</div></div>
+      <div class="card"><div class="stat-l">${b.due >= 0 ? 'יתרה לתשלום' : 'זכות (שולם מראש)'}</div><div class="stat num" style="color:${b.due>0?'var(--warn)':'var(--ok)'}">${money(Math.abs(b.due))}</div></div>
+    </div>
+    <div class="grid g2">
+      <div class="card"><h2>פגישות<span class="sp"></span><button class="btn sm" data-act="newappt" data-patient="${id}">${ic('plus')} פגישה</button></h2>
+        <div class="list">${appts.length ? appts.map(a => `<div class="item" data-act="editappt" data-id="${a.id}"><div class="main"><div class="t">${fmtDate(a.start)} · ${hm(parseLocal(a.start))}</div><div class="small muted">${money(a.fee)}</div></div><span class="chip">${STATUS[a.status]}</span>${payChip(a)}</div>`).join('') : `<div class="empty">אין פגישות</div>`}</div></div>
+      <div class="card"><h2>תשלומים<span class="sp"></span><button class="btn sm" data-act="newpayment" data-patient="${id}">${ic('plus')} תשלום</button></h2>
+        <div class="list">${pays.length ? pays.map(payRow).join('') : `<div class="empty">אין תשלומים</div>`}</div></div>
+    </div>`;
+  if (tab === 'forms') body = `
+    <div class="card"><h2>טפסים שמולאו<span class="sp"></span><button class="btn sm pri" data-act="fillform" data-patient="${id}">${ic('file')} מילוי טופס עכשיו</button></h2>
+      <div class="list">${resps.length ? resps.map(r => `<div class="item" data-act="viewresp" data-id="${r.id}"><div class="main"><div class="t">${esc(r.template?.title||'טופס')}</div><div class="small muted">${new Date(r.submittedAt).toLocaleString('he-IL',{dateStyle:'short',timeStyle:'short'})}</div></div><span class="chip ok">מולא</span></div>`).join('') : `<div class="empty">עוד לא מולאו טפסים</div>`}</div></div>`;
+  if (tab === 'sessions') body = `
+    <div class="row" style="margin-bottom:14px">
+      <input type="search" id="ssearch" placeholder="חיפוש בתמלולים, בסיכומים וברשמים…" style="max-width:380px">
+      <span class="sp"></span><button class="btn pri" data-act="newsession" data-patient="${id}">${ic('mic')} תיעוד טיפול חדש</button></div>
+    <div id="snomatch" class="card hidden"><div class="empty">לא נמצאו טיפולים שמכילים את החיפוש</div></div>
+    <div id="slist">${sess.length ? sess.map(sessionCard).join('') : `<div class="card"><div class="empty">אין עדיין טיפולים מתועדים</div></div>`}</div>`;
+  const after = tab !== 'sessions' ? null : setupSessionSearch;
+  return { title: pname(id), after, html: `
+    <div class="row" style="margin-bottom:12px"><a href="#/patients" class="btn ghost sm">${ic('prev')} כל המטופלים</a>${p.status==='inactive'?'<span class="chip">לא פעיל/ה</span>':''}${b.due>0?`<span class="chip warn">חוב ${money(b.due)}</span>`:''}</div>
+    <div class="tabs">${tabs.map(([k,l]) => `<a href="#" data-act="ptab" data-tab="${k}" class="${tab===k?'on':''}">${l}</a>`).join('')}</div>
+    ${body}` };
+};
+function setupSessionSearch(){
+    const inp = $('#ssearch'); if (!inp) return;
+    inp.oninput = () => {
+      const q = inp.value.trim().toLowerCase(); let shown = 0;
+      $$('#slist .scard').forEach(c => {
+        const hit = !q || c.dataset.s.includes(q); c.style.display = hit ? '' : 'none'; if (hit) shown++;
+        const d = c.querySelector('details.trx');
+        if (d) { d.open = !!q && hit && d.dataset.s.includes(q); $$('p', d).forEach(pp => pp.classList.toggle('hit', !!q && pp.textContent.toLowerCase().includes(q))); }
+      });
+      $('#snomatch').classList.toggle('hidden', shown > 0 || !$$('#slist .scard').length);
+    };
+}
+const payRow = x => `<div class="item" data-act="editpayment" data-id="${x.id}"><div class="main"><div class="t num">${money(x.amount)}</div><div class="small muted">${fmtDate(x.date,{day:'numeric',month:'numeric',year:'2-digit'})} · ${esc(x.method||'')}${x.apptId && get('appts',x.apptId) ? ' · עבור פגישה ' + fmtDate(get('appts',x.apptId).start,{day:'numeric',month:'numeric'}) : ''}${x.note?' · '+esc(x.note):''}</div></div></div>`;
+const sessionRow = s => `<a class="item" href="#/session/${s.id}"><div class="avatar">${ic(s.groupId ? 'group' : 'mic')}</div><div class="main"><div class="t">${esc(subj(s))}${s.groupId ? ' <span class="chip">קבוצה</span>' : ''}</div><div class="small muted">${fmtDate(s.date)}${s.recording ? ' · הקלטה ' + fmtDur(s.recording.durationSec) : ''}</div></div>${s.recording ? '<span class="chip acc">מוקלט</span>' : ''}${s.transcript ? '<span class="chip info">מתומלל</span>' : ''}${s.summary ? '<span class="chip ok">יש סיכום</span>' : ''}</a>`;
+const parseTs = t => t.split(':').map(Number).reduce((a, b) => a * 60 + b, 0);
+function trLine(l, sid, hasRec){
+  const m = l.match(/^\[(\d+(?::\d\d){1,2})\]\s*(.*)$/);
+  if (!m) return `<p>${esc(l)}</p>`;
+  const ts = hasRec ? `<button type="button" class="ts" data-act="seek" data-id="${sid}" data-t="${parseTs(m[1])}" title="השמעה מנקודה זו">${m[1]}</button>` : `<span class="ts">${m[1]}</span>`;
+  return `<p>${ts}${esc(m[2])}</p>`;
+}
+function transcriptReader(s){
+  const lines = (s.transcript || '').split('\n').filter(l => l.trim());
+  if (!lines.length) return '';
+  return `<details class="trx" data-s="${esc((s.transcript||'').toLowerCase())}"><summary>תמלול מלא · ${lines.length} קטעים${s.recording ? ' · לחיצה על זמן משמיעה מאותה נקודה' : ''}</summary><div class="trlines">${lines.map(l => trLine(l, s.id, !!s.recording)).join('')}</div></details>`;
+}
+function sessionCard(s){
+  const r = s.recording, recNow = APP.rec?.sessionId === s.id;
+  const hay = [s.transcript, s.summary, s.notes, s.plan].filter(Boolean).join(' ').toLowerCase();
+  return `<div class="card scard" data-s="${esc(hay)}">
+    <h2><a href="#/session/${s.id}" class="slink">${fmtDate(s.date, { weekday:'long', day:'numeric', month:'long', year:'numeric' })}</a>${s.groupId && route().name !== 'group' ? `<a class="chip acc" href="#/group/${s.groupId}" style="text-decoration:none">${ic('group','ic ic-s')} ${esc(gname(s.groupId))}</a>` : ''}${s.groupId ? `<span class="chip">${(s.attendance || []).length} משתתפים</span>` : ''}${s.planId && get('plans', s.planId) ? `<span class="chip">${ic('list','ic ic-s')} ${esc(get('plans', s.planId).title)}</span>` : ''}<span class="sp"></span>
+      ${r ? `<span class="chip acc">${ic('mic','ic ic-s')} ${fmtDur(r.durationSec)}</span>` : ''}<span id="trstatus-${s.id}">${trStatusHtml(s)}</span>
+      <a class="btn sm" href="#/session/${s.id}">${ic('edit')} פתיחה</a></h2>
+    ${recNow ? `<div class="notice warn">${ic('mic')}<div>הטיפול מוקלט כעת. <a href="#/session/${s.id}">מעבר למסך ההקלטה</a></div></div>`
+      : r ? `<div class="row"><button class="btn sm" data-act="playrec" data-id="${s.id}">${ic('play')} השמעת ההקלטה</button>${TR.enabled() ? `<button class="btn sm" data-act="transcribe" data-id="${s.id}">${s.transcript ? 'תמלול מחדש' : 'תמלול ההקלטה'}</button>` : ''}</div><div id="player-${s.id}" class="player"></div>`
+      : `<div class="small muted">לטיפול הזה אין הקלטה</div>`}
+    ${s.summary ? `<div class="sblock"><div class="q">סיכום</div><div class="clamp">${esc(s.summary)}</div></div>` : ''}
+    ${transcriptReader(s)}
+  </div>`;
+}
+
+/* =====================================================================
+   VIEW: calendar & appointments
+   ===================================================================== */
+VIEWS.calendar = () => {
+  if (!APP.weekStart) APP.weekStart = startOfWeek(new Date());
+  const ws = APP.weekStart, today = ymd(new Date());
+  const days = [...Array(7)].map((_, i) => addDays(ws, i));
+  const from = ymd(days[0]), to = ymd(addDays(ws, 7));
+  const appts = all('appts').filter(a => a.start >= from && a.start < to).sort((a,b) => a.start.localeCompare(b.start));
+  const weekFee = appts.filter(a => a.status !== 'cancelled').reduce((s,a) => s + (+a.fee||0), 0);
+  const calSeg = `<div class="seg" style="margin-bottom:14px"><button class="${APP.calView !== 'rem' ? 'on' : ''}" data-act="calview" data-v="week">${ic('cal','ic ic-s')} שבוע</button><button class="${APP.calView === 'rem' ? 'on' : ''}" data-act="calview" data-v="rem">תזכורות</button></div>`;
+  if (APP.calView === 'rem') return { title:'יומן', html: calSeg + remindersView(), after: () => { if (Date.now() - (APP.remStatusAt || 0) > 60000) refreshRemStatus(); } };
+  return { title:'יומן', html: calSeg + `
+    <div class="row" style="margin-bottom:14px">
+      <button class="iconbtn" data-act="week" data-d="-7" title="שבוע קודם">${ic('prev')}</button>
+      <button class="btn sm" data-act="week" data-d="0">היום</button>
+      <button class="iconbtn" data-act="week" data-d="7" title="שבוע הבא">${ic('next')}</button>
+      <b>${days[0].toLocaleDateString('he-IL',{day:'numeric',month:'long'})} – ${days[6].toLocaleDateString('he-IL',{day:'numeric',month:'long',year:'numeric'})}</b>
+      <span class="sp"></span>
+      <span class="small muted">${appts.filter(a=>a.status!=='cancelled').length} פגישות · ${money(weekFee)}</span>
+      <button class="btn pri" data-act="newappt">${ic('plus')} פגישה חדשה</button>
+    </div>
+    <div class="week">${days.map(d => { const k = ymd(d); const list = appts.filter(a => a.start.startsWith(k));
+      return `<div class="day ${k===today?'today':''}"><div class="dh"><span>${DAYS[d.getDay()]} ${d.getDate()}/${d.getMonth()+1}</span><button data-act="newappt" data-date="${k}" title="פגישה ביום זה">${ic('plus')}</button></div>
+        <div class="db">${[...list.map(a => ({ t: a.start.slice(11), h: `<div class="appt ${a.status}" data-act="editappt" data-id="${a.id}"><div class="row" style="gap:6px"><span class="tm">${hm(parseLocal(a.start))}</span><span>${esc(pname(a.patientId))}</span></div><div class="row" style="gap:4px;margin-top:3px">${payChip(a)}</div></div>` })),
+          ...groupsOn(k).map(g => ({ t: g.time || '', h: `<div class="appt grp" data-act="groupslot" data-id="${g.id}" data-date="${k}"><div class="row" style="gap:6px"><span class="tm">${esc(g.time || '')}</span><span>${ic('group','ic ic-s')} ${esc(g.name)}</span></div>${g.location ? `<div class="small muted">${esc(g.location)}</div>` : ''}</div>` }))]
+          .sort((x, y) => x.t.localeCompare(y.t)).map(x => x.h).join('')}</div></div>`; }).join('')}</div>` };
+};
+
+function apptDialog(id, preset={}){
+  const isNew = !id;
+  const a = id ? structuredClone(get('appts', id)) : { status:'scheduled', duration: APP.db.settings.defaultDuration || 50, patientId: preset.patient || '', start: (preset.date || ymd(new Date())) + 'T' + (preset.time || '10:00') };
+  if (isNew && a.patientId) a.fee = get('patients', a.patientId)?.fee || '';
+  const [date, time] = a.start.split('T');
+  const paid = id ? apptPaid(a) : 0;
+  const pays = id ? all('payments').filter(p => p.apptId === id) : [];
+  const sess = id ? all('sessions').find(s => s.apptId === id) : null;
+  openDialog({
+    title: isNew ? 'פגישה חדשה' : 'פגישה',
+    body: `
+      <div class="fgrid">
+        <label class="f full">מטופל/ת *<select name="patientId" required id="ap-p">${patientOptions(a.patientId)}</select></label>
+        <label class="f">תאריך *<input type="date" name="date" required value="${esc(date)}"></label>
+        <label class="f">שעה *<input type="time" name="time" required value="${esc(time)}"></label>
+        <label class="f">משך (דקות)<input type="number" name="duration" min="5" step="5" value="${esc(a.duration)}"></label>
+        <label class="f">מחיר (₪)<input type="number" name="fee" id="ap-fee" min="0" step="1" value="${esc(a.fee)}"></label>
+        <label class="f full">סטטוס<select name="status">${Object.entries(STATUS).map(([k,v]) => `<option value="${k}" ${a.status===k?'selected':''}>${v}</option>`).join('')}</select></label>
+        ${isNew ? `<label class="f full">חזרה שבועית<select name="repeat"><option value="1">פגישה חד-פעמית</option>${[4,8,12,26,52].map(n => `<option value="${n}">כל שבוע, ${n} פגישות</option>`).join('')}</select></label>` : ''}
+        <label class="f full">הערה<input type="text" name="note" value="${esc(a.note)}"></label>
+      </div>
+      ${a.patientId && remCfg().enabled ? `<div class="small muted">${ic('clock','ic ic-s')} תזכורת ${remCfg().hoursBefore} שעות לפני: ${esc(recipientsOf(a.patientId).map(r => r.name).join(', ') || 'אין נמענים מסומנים (V) בכרטיס המטופל')}</div>` : ''}
+      ${!isNew ? `<div class="fcard"><div class="row"><b>תשלום</b><span class="sp"></span>${payChip(a) || `<span class="chip">${paid>0?'שולם '+money(paid):'טרם שולם'}</span>`}</div>
+        ${pays.map(p => `<div class="small">${money(p.amount)} · ${esc(p.method)} · ${fmtDate(p.date,{day:'numeric',month:'numeric',year:'2-digit'})}</div>`).join('')}
+        ${paid < (+a.fee||0) ? `<div class="row"><button type="button" class="btn sm pri" data-act="quickpay" data-id="${id}">רישום תשלום ${money((+a.fee||0)-paid)}</button><button type="button" class="btn sm" data-act="newpayment" data-patient="${a.patientId}" data-appt="${id}">תשלום אחר…</button></div>` : ''}
+      </div>
+      <div class="row">${sess ? `<a class="btn" href="#/session/${sess.id}" data-act="closedlg">${ic('mic')} פתיחת תיעוד הטיפול</a>` : `<button type="button" class="btn" data-act="sessionfromappt" data-id="${id}">${ic('mic')} התחלת תיעוד טיפול</button>`}
+      <button type="button" class="btn" data-act="fillform" data-patient="${a.patientId}">${ic('file')} מילוי טופס</button></div>` : ''}`,
+    extra: !isNew ? `<button type="button" class="btn danger" data-act="delappt" data-id="${id}">${ic('trash')} מחיקה</button>` : '',
+    onSubmit(fd){
+      const base = { patientId: fd.get('patientId'), duration: +fd.get('duration') || 50, fee: fd.get('fee'), status: fd.get('status'), note: (fd.get('note')||'').trim() };
+      const t = fd.get('time');
+      if (isNew) {
+        const n = +fd.get('repeat') || 1; const d0 = parseLocal(fd.get('date'));
+        const series = n > 1 ? uid() : undefined;
+        for (let i = 0; i < n; i++) upsert('appts', Object.assign({}, base, { start: ymd(addDays(d0, i*7)) + 'T' + t, series, status: i === 0 ? base.status : 'scheduled' }));
+        if (n > 1) toast(`נוספו ${n} פגישות`);
+      } else upsert('appts', Object.assign(a, base, { start: fd.get('date') + 'T' + t }));
+    }
+  });
+  const sel = $('#ap-p'); sel && (sel.onchange = () => { const p = get('patients', sel.value); if (p?.fee && !$('#ap-fee').value) $('#ap-fee').value = p.fee; });
+}
+
+function paymentDialog(id, preset={}){
+  const x = id ? structuredClone(get('payments', id)) : { patientId: preset.patient || '', apptId: preset.appt || '', date: ymd(new Date()), method: APP.db.settings.lastMethod || 'העברה בנקאית' };
+  if (!id && preset.appt) { const a = get('appts', preset.appt); if (a) x.amount = Math.max(0, (+a.fee||0) - apptPaid(a)); }
+  const appts = x.patientId ? all('appts').filter(a => a.patientId === x.patientId && a.status !== 'cancelled').sort((a,b) => b.start.localeCompare(a.start)).slice(0, 30) : [];
+  openDialog({
+    title: id ? 'עריכת תשלום' : 'רישום תשלום',
+    body: `<div class="fgrid">
+      <label class="f full">מטופל/ת *<select name="patientId" required>${patientOptions(x.patientId)}</select></label>
+      <label class="f">סכום (₪) *<input type="number" name="amount" required min="0" step="1" value="${esc(x.amount)}"></label>
+      <label class="f">תאריך<input type="date" name="date" value="${esc(x.date)}"></label>
+      <label class="f">אמצעי תשלום<select name="method">${METHODS.map(m => `<option ${x.method===m?'selected':''}>${m}</option>`).join('')}</select></label>
+      <label class="f">עבור פגישה<select name="apptId"><option value="">— כללי / מקדמה —</option>${appts.map(a => `<option value="${a.id}" ${x.apptId===a.id?'selected':''}>${fmtDate(a.start)} ${hm(parseLocal(a.start))}</option>`).join('')}</select></label>
+      <label class="f full">הערה (מס׳ קבלה וכו׳)<input type="text" name="note" value="${esc(x.note)}"></label>
+    </div>`,
+    extra: id ? `<button type="button" class="btn danger" data-act="delpayment" data-id="${id}">${ic('trash')} מחיקה</button>` : '',
+    onSubmit(fd){
+      Object.assign(x, { patientId: fd.get('patientId'), amount: +fd.get('amount'), date: fd.get('date'), method: fd.get('method'), apptId: fd.get('apptId') || '', note: (fd.get('note')||'').trim() });
+      APP.db.settings.lastMethod = x.method;
+      upsert('payments', x);
+    }
+  });
+}
+
+/* =====================================================================
+   VIEW: payments
+   ===================================================================== */
+VIEWS.payments = () => {
+  const month = APP.payMonth || ymd(new Date()).slice(0,7);
+  const pays = all('payments').filter(p => (p.date||'').startsWith(month)).sort((a,b) => (b.date||'').localeCompare(a.date||''));
+  const total = pays.reduce((s,p) => s + (+p.amount||0), 0);
+  const byMethod = {}; pays.forEach(p => byMethod[p.method] = (byMethod[p.method]||0) + (+p.amount||0));
+  const rows = all('patients').map(p => ({ p, b: balance(p.id) })).filter(x => x.b.charged || x.b.paid).sort((a,b) => b.b.due - a.b.due);
+  return { title:'תשלומים', html: `
+    <div class="row" style="margin-bottom:14px"><label class="f" style="flex-direction:row;align-items:center;gap:8px">חודש<input type="month" id="pmonth" value="${month}" style="width:auto"></label><span class="sp"></span><button class="btn pri" data-act="newpayment">${ic('plus')} רישום תשלום</button></div>
+    <div class="grid g3" style="margin-bottom:16px">
+      <div class="card"><div class="stat-l">התקבל בחודש</div><div class="stat num">${money(total)}</div></div>
+      <div class="card"><div class="stat-l">לפי אמצעי תשלום</div><div class="small">${Object.entries(byMethod).map(([k,v]) => `${esc(k)}: <b class="num">${money(v)}</b>`).join('<br>') || '<span class="muted">—</span>'}</div></div>
+      <div class="card"><div class="stat-l">סה״כ יתרות פתוחות</div><div class="stat num" style="color:var(--warn)">${money(rows.reduce((s,x) => s + Math.max(0,x.b.due), 0))}</div></div>
+    </div>
+    <div class="grid g2">
+      <div class="card"><h2>תשלומים בחודש</h2><div class="list">${pays.length ? pays.map(x => payRow(x).replace('<div class="t num">', `<div class="t num">${esc(pname(x.patientId))} · `)).join('') : '<div class="empty">אין תשלומים בחודש זה</div>'}</div></div>
+      <div class="card"><h2>מצב חשבון לפי מטופל/ת</h2>
+        <table class="t"><thead><tr><th>שם</th><th>חויב</th><th>שולם</th><th>יתרה</th></tr></thead><tbody>
+        ${rows.map(x => `<tr><td><a href="#/patient/${x.p.id}">${esc(pname(x.p.id))}</a></td><td class="num">${money(x.b.charged)}</td><td class="num">${money(x.b.paid)}</td><td class="num" style="font-weight:700;color:${x.b.due>0?'var(--warn)':'var(--ok)'}">${money(x.b.due)}</td></tr>`).join('') || '<tr><td colspan="4" class="empty">אין נתונים</td></tr>'}
+        </tbody></table></div>
+    </div>`,
+    after(){ $('#pmonth').onchange = e => { APP.payMonth = e.target.value; render(); }; } };
+};
+
+/* =====================================================================
+   FORMS: templates, builder, kiosk fill, responses
+   ===================================================================== */
+const FTYPES = { text:'טקסט קצר', textarea:'טקסט ארוך', number:'מספר', date:'תאריך', phone:'טלפון', email:'אימייל', radio:'בחירה אחת', checks:'בחירה מרובה', yesno:'כן / לא', signature:'חתימה', info:'כותרת / טקסט הסבר' };
+function seedTemplates(){
+  const f = (type, label, extra={}) => Object.assign({ id: uid().slice(0,8), type, label, required:false }, extra);
+  upsert('templates', { title:'הסכמה להקלטת טיפול', description:'טופס הסכמה לתיעוד מפגשי טיפול בהקלטה קולית.', fields:[
+    f('info','ההקלטות משמשות לתיעוד מקצועי בלבד, נשמרות מוצפנות ואינן מועברות לאיש ללא הסכמה מפורשת. אפשר לבטל את ההסכמה בכל עת.'),
+    f('text','שם מלא', {required:true}),
+    f('yesno','אני מסכים/ה להקלטת מפגשי הטיפול', {required:true}),
+    f('signature','חתימה', {required:true}),
+  ]});
+  upsert('templates', { title:'טופס פרטים אישיים (דוגמה)', description:'אפשר לערוך את הטופס או ליצור חדש לפי הפורמט שלך.', fields:[
+    f('text','שם מלא', {required:true}), f('date','תאריך לידה'), f('phone','טלפון', {required:true}), f('email','אימייל'),
+    f('info','איש קשר לשעת חירום'), f('text','שם איש הקשר'), f('phone','טלפון איש הקשר'),
+    f('textarea','מה הביא אותך לטיפול?'), f('radio','האם היית בטיפול בעבר?', {options:['לא','כן, בעבר','כן, כרגע']}),
+    f('signature','חתימה'),
+  ]});
+}
+VIEWS.forms = () => {
+  const ts = all('templates').sort((a,b) => (a.title||'').localeCompare(b.title||'', 'he'));
+  const recent = all('responses').sort((a,b) => (b.submittedAt||0) - (a.submittedAt||0)).slice(0, 10);
+  return { title:'טפסים', html: `
+    <div class="notice" style="margin-bottom:16px">${ic('shield')}<div><b>מילוי בקליניקה:</b> בוחרים טופס ומטופל/ת, והמכשיר עובר למצב מילוי שבו רואים רק את הטופס. בסיום האפליקציה ננעלת, וכדי לחזור צריך את הסיסמה שלך.<br><span class="muted small">מילוי מרחוק דרך קישור יתווסף בשלב הבא.</span></div></div>
+    <div class="grid g2">
+      <div class="card"><h2>מאגר טפסים<span class="sp"></span><button class="btn sm pri" data-act="newtemplate">${ic('plus')} טופס חדש</button></h2>
+        <div class="list">${ts.map(t => `<div class="item" style="cursor:default"><div class="main"><div class="t">${esc(t.title)}</div><div class="small muted">${(t.fields||[]).filter(f=>f.type!=='info').length} שדות</div></div>
+          <a class="btn sm" href="#/form/${t.id}">${ic('edit')} עריכה</a><button class="btn sm pri" data-act="fillform" data-tpl="${t.id}">מילוי</button></div>`).join('') || '<div class="empty">אין טפסים</div>'}</div></div>
+      <div class="card"><h2>מולאו לאחרונה</h2><div class="list">${recent.map(r => `<div class="item" data-act="viewresp" data-id="${r.id}"><div class="main"><div class="t">${esc(r.template?.title)}</div><div class="small muted">${esc(pname(r.patientId))} · ${new Date(r.submittedAt).toLocaleDateString('he-IL')}</div></div></div>`).join('') || '<div class="empty">עוד לא מולאו טפסים</div>'}</div></div>
+    </div>` };
+};
+
+VIEWS.form = (id) => {
+  if (!APP.tdraft || APP.tdraft.id !== id) {
+    const t = id === 'new' ? { id:'new', title:'טופס חדש', description:'', fields:[] } : structuredClone(get('templates', id));
+    if (!t) return { title:'טפסים', html:'<div class="empty">הטופס לא נמצא</div>' };
+    APP.tdraft = t;
+  }
+  const t = APP.tdraft;
+  return { title:'עריכת טופס', html: `
+    <div class="row" style="margin-bottom:14px"><a href="#/forms" class="btn ghost sm" data-act="leavebuilder">${ic('prev')} חזרה לטפסים</a><span class="sp"></span>
+      ${id !== 'new' ? `<button class="btn danger sm" data-act="deltemplate" data-id="${id}">${ic('trash')} מחיקת הטופס</button>` : ''}
+      <button class="btn" data-act="previewtemplate">תצוגה מקדימה</button><button class="btn pri" data-act="savetemplate">שמירת הטופס</button></div>
+    <div class="card"><div class="fgrid">
+      <label class="f full">שם הטופס<input type="text" data-tb="title" value="${esc(t.title)}"></label>
+      <label class="f full">הסבר בראש הטופס<textarea data-tb="description" style="min-height:60px">${esc(t.description)}</textarea></label>
+    </div></div>
+    <div class="card"><h2>שדות<span class="sp"></span><button class="btn sm pri" data-act="addfield">${ic('plus')} הוספת שדה</button></h2>
+      ${t.fields.map((f, i) => `<div class="fcard">
+        <div class="row"><b class="muted small">${i+1}.</b><select data-fb="${i}:type" style="width:auto">${Object.entries(FTYPES).map(([k,v]) => `<option value="${k}" ${f.type===k?'selected':''}>${v}</option>`).join('')}</select>
+          ${f.type !== 'info' ? `<label class="check small"><input type="checkbox" data-fb="${i}:required" ${f.required?'checked':''}> חובה</label>` : ''}
+          <span class="sp"></span>
+          <button class="iconbtn" data-act="mvfield" data-i="${i}" data-d="-1" title="למעלה">${ic('up')}</button>
+          <button class="iconbtn" data-act="mvfield" data-i="${i}" data-d="1" title="למטה">${ic('down')}</button>
+          <button class="iconbtn" data-act="delfield" data-i="${i}" title="מחיקה" style="color:var(--warn)">${ic('trash')}</button></div>
+        ${f.type === 'info' ? `<textarea data-fb="${i}:label" placeholder="כותרת או טקסט הסבר" style="min-height:60px">${esc(f.label)}</textarea>` : `<input type="text" data-fb="${i}:label" placeholder="השאלה / שם השדה" value="${esc(f.label)}">`}
+        ${['radio','checks'].includes(f.type) ? `<label class="f">אפשרויות (כל אפשרות בשורה)<textarea data-fb="${i}:options" style="min-height:70px">${esc((f.options||[]).join('\n'))}</textarea></label>` : ''}
+      </div>`).join('') || '<div class="empty">אין שדות. לחצי "הוספת שדה".</div>'}
+    </div>` };
+};
+document.addEventListener('input', e => {
+  const el = e.target;
+  if (el.dataset.tb && APP.tdraft) APP.tdraft[el.dataset.tb] = el.value;
+  if (el.dataset.fb && APP.tdraft) {
+    const [i, prop] = el.dataset.fb.split(':'); const f = APP.tdraft.fields[+i];
+    if (prop === 'options') f.options = el.value.split('\n').map(s => s.trim()).filter(Boolean);
+    else if (prop === 'required') f.required = el.checked;
+    else if (prop === 'type') { f.type = el.value; if (['radio','checks'].includes(f.type) && !f.options?.length) f.options = ['אפשרות 1','אפשרות 2']; render(); }
+    else f[prop] = el.value;
+  }
+  if (el.dataset.sb) { sessionField(el.dataset.sid, el.dataset.sb, el.type === 'checkbox' ? el.checked : el.value); if (el.dataset.sb === 'planId') render(); }
+});
+
+function fieldHtml(f){
+  const req = f.required ? ' <span class="req">*</span>' : '';
+  const n = `name="f_${f.id}"`;
+  if (f.type === 'info') return `<div class="kq info" data-fid="${f.id}">${f.label.length < 60 && !f.label.includes('\n') ? `<h3>${esc(f.label)}</h3>` : `<p style="margin:0;white-space:pre-wrap">${esc(f.label)}</p>`}</div>`;
+  let input = '';
+  switch (f.type) {
+    case 'textarea': input = `<textarea ${n}></textarea>`; break;
+    case 'number': input = `<input type="number" ${n} inputmode="decimal">`; break;
+    case 'date': input = `<input type="date" ${n}>`; break;
+    case 'phone': input = `<input type="tel" ${n} inputmode="tel">`; break;
+    case 'email': input = `<input type="email" ${n}>`; break;
+    case 'radio': input = `<div class="opts">${(f.options||[]).map(o => `<label class="check"><input type="radio" ${n} value="${esc(o)}"> ${esc(o)}</label>`).join('')}</div>`; break;
+    case 'checks': input = `<div class="opts">${(f.options||[]).map(o => `<label class="check"><input type="checkbox" ${n} value="${esc(o)}"> ${esc(o)}</label>`).join('')}</div>`; break;
+    case 'yesno': input = `<div class="opts inline"><label class="check"><input type="radio" ${n} value="כן"> כן</label><label class="check"><input type="radio" ${n} value="לא"> לא</label></div>`; break;
+    case 'signature': input = `<div class="sigwrap"><canvas data-sig="${f.id}"></canvas><button type="button" class="btn sm clr" data-act="clearsig" data-f="${f.id}">ניקוי</button></div><span class="small muted">חתמו באצבע או בעכבר</span>`; break;
+    default: input = `<input type="text" ${n}>`;
+  }
+  return `<div class="kq" data-fid="${f.id}"><div class="ql">${esc(f.label)}${req}</div>${input}</div>`;
+}
+function initSignatures(root){
+  $$('canvas[data-sig]', root).forEach(cv => {
+    const dpr = window.devicePixelRatio || 1, r = cv.getBoundingClientRect();
+    cv.width = r.width * dpr; cv.height = r.height * dpr;
+    const ctx = cv.getContext('2d'); ctx.scale(dpr, dpr); ctx.lineWidth = 2.2; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.strokeStyle = '#111';
+    let drawing = false; cv.dataset.empty = '1';
+    const pos = e => { const b = cv.getBoundingClientRect(); return [e.clientX - b.left, e.clientY - b.top]; };
+    cv.onpointerdown = e => { drawing = true; cv.setPointerCapture(e.pointerId); ctx.beginPath(); ctx.moveTo(...pos(e)); };
+    cv.onpointermove = e => { if (!drawing) return; ctx.lineTo(...pos(e)); ctx.stroke(); cv.dataset.empty = '0'; };
+    cv.onpointerup = cv.onpointercancel = () => { drawing = false; };
+  });
+}
+function collectAnswers(form, fields){
+  const ans = {}; let firstBad = null;
+  $$('.kq', form).forEach(q => q.classList.remove('bad'));
+  for (const f of fields) {
+    if (f.type === 'info') continue;
+    let v;
+    if (f.type === 'checks') v = $$(`[name="f_${f.id}"]:checked`, form).map(i => i.value);
+    else if (f.type === 'signature') { const cv = $(`canvas[data-sig="${f.id}"]`, form); v = cv && cv.dataset.empty === '0' ? cv.toDataURL('image/png') : ''; }
+    else if (['radio','yesno'].includes(f.type)) v = $(`[name="f_${f.id}"]:checked`, form)?.value || '';
+    else v = ($(`[name="f_${f.id}"]`, form)?.value || '').trim();
+    const empty = Array.isArray(v) ? !v.length : !v;
+    if (f.required && empty) { const q = $(`.kq[data-fid="${f.id}"]`, form); q.classList.add('bad'); firstBad ||= q; }
+    ans[f.id] = v;
+  }
+  return { ans, firstBad };
+}
+
+function startKiosk(tplId, patientId){
+  const t = get('templates', tplId), p = get('patients', patientId);
+  if (!t || !p) { toast('יש לבחור טופס ומטופל/ת', 'err'); return; }
+  if ($('#dlg').open) $('#dlg').close();
+  APP.kiosk = { tplId, patientId, done:false };
+  history.replaceState(null, '', location.pathname + location.search + '#/kiosk');
+  renderKiosk();
+}
+function renderKiosk(){
+  const k = APP.kiosk, t = get('templates', k.tplId), p = get('patients', k.patientId);
+  if (k.done) {
+    $('#root').innerHTML = `<div class="gate"><div class="box" style="text-align:center;align-items:center"><div class="logo">${ic('shield')}</div><h1>תודה רבה!</h1><p class="muted" style="margin:0">הטופס נשמר בהצלחה.<br>אפשר להחזיר את המכשיר.</p><button class="btn pri" data-act="exitkiosk">סיום</button></div></div>`;
+    return;
+  }
+  $('#root').innerHTML = `<div class="kiosk"><form class="sheet" id="kform" novalidate>
+    <div><h1>${esc(t.title)}</h1><p class="muted" style="margin:6px 0 0">${esc(p.firstName)} ${esc(p.lastName||'')}</p></div>
+    ${t.description ? `<p style="margin:0;white-space:pre-wrap">${esc(t.description)}</p>` : ''}
+    ${t.fields.map(fieldHtml).join('')}
+    <div class="row"><button type="submit" class="btn pri" style="min-width:160px;min-height:50px;font-size:18px">שליחה</button><span class="sp"></span><button type="button" class="btn ghost" data-act="exitkiosk">ביטול</button></div>
+    <div id="kerr" class="err"></div>
+  </form></div>`;
+  initSignatures($('#kform'));
+  $('#kform').onsubmit = async e => {
+    e.preventDefault();
+    const { ans, firstBad } = collectAnswers(e.target, t.fields);
+    if (firstBad) { $('#kerr').textContent = 'יש למלא את כל שדות החובה (מסומנים באדום)'; firstBad.scrollIntoView({ behavior:'smooth', block:'center' }); return; }
+    upsert('responses', { templateId: t.id, template: structuredClone({ title:t.title, description:t.description, fields:t.fields }), patientId: p.id, answers: ans, submittedAt: Date.now() });
+    k.done = true; renderKiosk();
+    try { clearTimeout(APP.saveTimer); await saveNow(); } catch {}
+  };
+}
+function respHtml(r){
+  return `<h2 style="margin:0 0 4px">${esc(r.template.title)}</h2><div class="muted small">${esc(pname(r.patientId))} · מולא ב-${new Date(r.submittedAt).toLocaleString('he-IL',{dateStyle:'short',timeStyle:'short'})}</div>
+    ${r.template.fields.map(f => {
+      if (f.type === 'info') return `<h3 style="margin:14px 0 0;font-size:16px">${esc(f.label)}</h3>`;
+      const v = r.answers[f.id];
+      const val = f.type === 'signature' ? (v ? `<img src="${esc(v)}" alt="חתימה">` : '<span class="muted">—</span>') : Array.isArray(v) ? (v.map(esc).join(', ') || '—') : (esc(v) || '<span class="muted">—</span>');
+      return `<div class="answer"><div class="q">${esc(f.label)}</div><div style="white-space:pre-wrap">${val}</div></div>`;
+    }).join('')}`;
+}
+
+/* =====================================================================
+   SESSIONS: documentation & encrypted recording
+   ===================================================================== */
+VIEWS.sessions = () => {
+  const ss = all('sessions').sort((a,b) => (b.date||'').localeCompare(a.date||'') || (b.createdAt - a.createdAt));
+  return { title:'תיעוד טיפולים', html: `
+    <div class="row" style="margin-bottom:14px"><span class="sp"></span><button class="btn pri" data-act="newsession">${ic('mic')} תיעוד חדש</button></div>
+    <div class="card"><div class="list">${ss.map(sessionRow).join('') || '<div class="empty">עוד אין תיעוד טיפולים</div>'}</div></div>` };
+};
+function newSessionDialog(preset={}){
+  const today = ymd(new Date());
+  const todays = all('appts').filter(a => a.start.startsWith(today) && a.status !== 'cancelled').sort((a,b) => a.start.localeCompare(b.start));
+  openDialog({ title:'תיעוד טיפול חדש', submit:'פתיחה',
+    body: `${todays.length && !preset.patient ? `<div><b class="small">הפגישות של היום</b><div class="list">${todays.map(a => `<div class="item" data-act="sessionfromappt" data-id="${a.id}"><div class="num" style="font-weight:700">${hm(parseLocal(a.start))}</div><div class="main">${esc(pname(a.patientId))}</div></div>`).join('')}</div></div><div class="muted small">או בחירה ידנית:</div>` : ''}
+      <label class="f">טיפול פרטני או קבוצה<select name="who" required><option value="">בחירה…</option>
+        <optgroup label="מטופלים">${activePatients().map(p => `<option value="p:${p.id}" ${p.id===preset.patient?'selected':''}>${esc(pname(p.id))}</option>`).join('')}</optgroup>
+        ${all('groups').filter(g => g.status !== 'ended').length ? `<optgroup label="קבוצות">${all('groups').filter(g => g.status !== 'ended').map(g => `<option value="g:${g.id}">${esc(g.name)}</option>`).join('')}</optgroup>` : ''}
+      </select></label>
+      <label class="f">תאריך<input type="date" name="date" value="${today}"></label>`,
+    onSubmit(fd){
+      const [kind, ref] = String(fd.get('who')).split(':'); const date = fd.get('date') + 'T' + hm(new Date());
+      const s = kind === 'g' ? createGroupSession(ref, date) : upsert('sessions', { patientId: ref, date, notes:'', summary:'', plan:'', transcript:'' });
+      location.hash = '#/session/' + s.id; }
+  });
+}
+function sessionFromAppt(apptId){
+  const a = get('appts', apptId); if (!a) return;
+  let s = all('sessions').find(x => x.apptId === apptId);
+  if (!s) s = upsert('sessions', { patientId: a.patientId, apptId, date: a.start, notes:'', summary:'', plan:'', transcript:'' });
+  if ($('#dlg').open) $('#dlg').close();
+  location.hash = '#/session/' + s.id;
+}
+let _sessTimer = null;
+function sessionField(id, prop, val){
+  const s = APP.db.sessions[id]; if (!s) return;
+  s[prop] = val; s.updatedAt = Date.now(); APP.ver++; setSync('pending');
+  clearTimeout(_sessTimer); _sessTimer = setTimeout(scheduleSave, 600);
+  if (prop === 'consent') { const b = $('#recstart'); b && (b.disabled = !val); }
+}
+VIEWS.session = (id) => {
+  const s = get('sessions', id);
+  if (!s) return { title:'תיעוד', html:'<div class="empty">התיעוד לא נמצא</div>' };
+  const recHere = APP.rec && APP.rec.sessionId === id;
+  const recElsewhere = APP.rec && !recHere;
+  const r = s.recording;
+  return { title: s.groupId ? 'מפגש קבוצתי' : 'תיעוד טיפול', html: `
+    <div class="row" style="margin-bottom:12px"><a class="btn ghost sm" href="${s.groupId ? '#/group/' + s.groupId : '#/patient/' + s.patientId}">${ic('prev')} ${esc(subj(s))}</a><span class="muted">${fmtDate(s.date,{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</span><span class="sp"></span><button class="btn danger sm" data-act="delsession" data-id="${id}">${ic('trash')} מחיקה</button></div>
+    <div class="card">
+      <h2>${ic('mic')} הקלטה</h2>
+      ${r && !recHere ? `<div class="row" style="margin-bottom:12px"><span class="chip acc">הקלטה מוצפנת · ${fmtDur(r.durationSec)} · ${(r.size/1048576).toFixed(1)}MB</span><button class="btn sm" data-act="playrec" data-id="${id}">${ic('play')} השמעה</button></div><div id="player-${id}" class="player" style="margin-bottom:12px"></div>` : ''}
+      ${recElsewhere ? `<div class="notice warn">כרגע מתבצעת הקלטה בתיעוד אחר. <a href="#/session/${APP.rec.sessionId}">מעבר אליו</a></div>` : !r || recHere ? `
+        <label class="check" style="margin-bottom:12px"><input type="checkbox" data-sb="consent" data-sid="${id}" ${s.consent?'checked':''} ${recHere?'disabled':''}> ${s.groupId ? 'כל המשתתפים במפגש נתנו הסכמה להקלטה' : 'המטופל/ת נתן/ה הסכמה להקלטת המפגש'}</label>
+        <div class="recorder">
+          ${recHere ? `<button class="recbtn stop" data-act="recstop" title="סיום הקלטה">${ic('stop')}</button>
+                       <button class="btn" data-act="recpause">${APP.rec.paused ? ic('play')+' המשך' : ic('pause')+' השהיה'}</button>`
+                    : `<button class="recbtn" id="recstart" data-act="recstart" data-id="${id}" ${s.consent?'':'disabled'} title="התחלת הקלטה">${ic('mic')}</button>`}
+          <div class="timer" id="rtimer">${recHere ? fmtDur(recElapsed()) : '0:00'}</div>
+          <div class="meter"><i id="rmeter"></i></div>
+        </div>
+        <p class="small muted" style="margin:10px 0 0">${recHere ? (APP.rec.paused ? 'ההקלטה מושהית.' : 'מקליט… כל חצי דקה ההקלטה נשמרת מוצפנת במכשיר, כך שגם אם משהו נתקע היא לא תאבד.') + ' בטלפון — השאירי את האפליקציה פתוחה עם המסך דולק.' : 'ההקלטה מוצפנת במכשיר לפני שהיא נשמרת.' + (TR.enabled() ? ' התמלול יתחיל אוטומטית עם ההקלטה.' : '')}</p>` : ''}
+    </div>
+    ${s.groupId ? groupSessionCard(s) : ''}
+    <div class="card">
+      <h2>רשמים בזמן הטיפול</h2>
+      <textarea data-sb="notes" data-sid="${id}" style="min-height:140px" placeholder="רשמים חופשיים תוך כדי המפגש — נשמר אוטומטית">${esc(s.notes)}</textarea>
+    </div>
+    <div class="card">
+      <h2>תמלול<span class="sp"></span><span id="trstatus-${id}">${trStatusHtml(s)}</span>${TR.enabled() && r && !recHere ? `<button class="btn sm" data-act="transcribe" data-id="${id}">${s.transcript ? 'תמלול מחדש' : 'תמלול ההקלטה'}</button>` : ''}</h2>
+      ${TR.configured() && APP.store.kind !== 'drive' ? `<div class="notice" style="margin-bottom:10px">התמלול האוטומטי פועל רק כשמחוברים לגוגל דרייב.</div>` : !TR.configured() ? `<div class="notice" style="margin-bottom:10px">התמלול האוטומטי עוד לא הופעל (שלב 4 במדריך ההקמה). בינתיים אפשר לכתוב או להדביק כאן.</div>` : ''}
+      <textarea data-sb="transcript" data-sid="${id}" style="min-height:${s.transcript ? 260 : 100}px" placeholder="${TR.enabled() ? 'התמלול יופיע כאן תוך כדי ההקלטה, עם חותמת זמן לכל קטע. אפשר לתקן אותו ידנית.' : 'תמלול / תקציר שיחה'}">${esc(s.transcript)}</textarea>
+      ${r && !recHere && s.transcript ? `<div class="small muted" style="margin-top:6px">בכרטיס המטופל אפשר ללחוץ על כל חותמת זמן ולשמוע את ההקלטה מאותה נקודה.</div>` : ''}
+    </div>
+    <div class="grid g2" style="margin-top:16px">
+      <div class="card" style="margin:0"><h2>סיכום הטיפול</h2><textarea data-sb="summary" data-sid="${id}" style="min-height:160px" placeholder="נושאים שעלו, התערבויות, התרשמות…">${esc(s.summary)}</textarea></div>
+      <div class="card" style="margin:0"><h2>המשך / תוכנית</h2><textarea data-sb="plan" data-sid="${id}" style="min-height:160px" placeholder="משימות, נושאים לפגישה הבאה…">${esc(s.plan)}</textarea></div>
+    </div>` };
+};
+
+/* ---- recorder ---- */
+function recElapsed(){ const r = APP.rec; if (!r) return 0; return (r.acc + (r.paused ? 0 : (Date.now() - r.segStart))) / 1000; }
+async function startRecording(sessionId){
+  if (APP.rec) return;
+  if (!navigator.mediaDevices?.getUserMedia || !window.MediaRecorder) { toast('הדפדפן הזה לא תומך בהקלטה', 'err'); return; }
+  // טיפול נמשך כשעה והחיבור לגוגל תקף לשעה — מחדשים אותו עכשיו, כדי שהתמלול וההעלאה יעבדו עד הסוף
+  if (APP.store.kind === 'drive' && DriveStore.exp - Date.now() < 55*60000) { try { await DriveStore.auth(); } catch (e) { toast('לא ניתן לחדש את החיבור לגוגל: ' + e.message, 'err'); } }
+  let stream;
+  try { stream = await navigator.mediaDevices.getUserMedia({ audio:{ echoCancellation:true, noiseSuppression:true, autoGainControl:true } }); }
+  catch { toast('אין גישה למיקרופון. יש לאשר גישה בהגדרות הדפדפן.', 'err'); return; }
+  const mime = ['audio/webm;codecs=opus','audio/mp4','audio/webm','audio/ogg;codecs=opus'].find(m => MediaRecorder.isTypeSupported(m)) || '';
+  const mr = new MediaRecorder(stream, mime ? { mimeType:mime, audioBitsPerSecond:32000 } : {});
+  const rec = { sessionId, mr, stream, mime: mr.mimeType || mime || 'audio/webm', chunks:[], idx:0, writes:[], acc:0, segStart:Date.now(), paused:false, key:APP.key };
+  mr.ondataavailable = e => {
+    if (!e.data || !e.data.size) return;
+    rec.chunks.push(e.data);
+    const i = rec.idx++;
+    rec.writes.push((async () => {
+      const bytes = new Uint8Array(await e.data.arrayBuffer());
+      const data = await encryptBytes(rec.key, bytes);
+      await idbOp('recparts', 'readwrite', s => s.put({ sessionId, idx:i, mime:rec.mime, data }, sessionId + ':' + String(i).padStart(6,'0')));
+    })().catch(err => console.error('chunk save', err)));
+  };
+  mr.start(30000);
+  // מד עוצמה
+  try {
+    const ac = new (window.AudioContext || window.webkitAudioContext)(); const src = ac.createMediaStreamSource(stream); const an = ac.createAnalyser(); an.fftSize = 512; src.connect(an);
+    const buf = new Uint8Array(an.fftSize); rec.ac = ac;
+    if (TR.enabled()) startLiveTranscription(rec, ac, src);
+    const tick = () => { if (APP.rec !== rec) return; an.getByteTimeDomainData(buf); let m = 0; for (const v of buf) m = Math.max(m, Math.abs(v - 128)); const el = $('#rmeter'); if (el) el.style.width = Math.min(100, m / 1.0) + '%'; requestAnimationFrame(tick); };
+    requestAnimationFrame(tick);
+  } catch {}
+  try { rec.wake = await navigator.wakeLock?.request('screen'); } catch {}
+  rec.timer = setInterval(() => { const t = $('#rtimer'); if (t && APP.rec === rec) t.textContent = fmtDur(recElapsed()); updateRecPill(); }, 500);
+  APP.rec = rec;
+  const s = APP.db.sessions[sessionId]; s.recStartedAt = Date.now(); upsert('sessions', s);
+  render();
+}
+function pauseRecording(){
+  const r = APP.rec; if (!r) return;
+  if (r.paused) { r.mr.resume(); r.segStart = Date.now(); r.paused = false; }
+  else { r.mr.pause(); r.acc += Date.now() - r.segStart; r.paused = true; }
+  render();
+}
+async function stopRecording(){
+  const r = APP.rec; if (!r) return;
+  // החיבור לגוגל תקף לשעה; אם הוא עומד לפוג, מחדשים אותו כבר עכשיו (בזמן הלחיצה) כדי שההעלאה תצליח
+  const authP = (APP.store.kind === 'drive' && Date.now() > DriveStore.exp - 5*60000) ? DriveStore.auth().catch(() => {}) : null;
+  const stopped = new Promise(res => r.mr.addEventListener('stop', res, { once:true }));
+  if (r.tr) { flushSegment(r); r.tr.active = false; try { r.tr.node.disconnect(); } catch {} finishLive(r.sessionId); }
+  if (!r.paused) r.acc += Date.now() - r.segStart;
+  r.mr.stop(); await stopped;
+  r.stream.getTracks().forEach(t => t.stop()); clearInterval(r.timer);
+  try { r.ac?.close(); } catch {} try { r.wake?.release(); } catch {}
+  await Promise.all(r.writes);
+  const durationSec = Math.round(r.acc / 1000);
+  APP.rec = null;
+  toast('שומר את ההקלטה המוצפנת…');
+  render();
+  if (authP) await authP;
+  await uploadRecording(r.sessionId, new Blob(r.chunks, { type:r.mime }), r.mime, durationSec);
+}
+async function uploadRecording(sessionId, blob, mime, durationSec){
+  const s = APP.db.sessions[sessionId];
+  const file = 'rec-' + sessionId + '.bin';
+  try {
+    const encd = await encryptBytes(APP.key, new Uint8Array(await blob.arrayBuffer()));
+    await APP.store.put(file, encd);
+    if (s && !s.deleted) { s.recording = { file, mime, size: blob.size, durationSec }; upsert('sessions', s); }
+    await clearRecParts(sessionId);
+    APP.recovery = APP.recovery.filter(x => x !== sessionId);
+    toast('ההקלטה נשמרה');
+    render();
+  } catch (e) {
+    console.error(e);
+    toast('ההקלטה שמורה מוצפנת במכשיר אך לא עלתה עדיין. אפשר לנסות שוב ממסך הבית.', 'err');
+    if (!APP.recovery.includes(sessionId)) APP.recovery.push(sessionId);
+  }
+}
+async function clearRecParts(sessionId){
+  const keys = await idbOp('recparts','readonly', s => s.getAllKeys());
+  const mine = (keys || []).filter(k => String(k).startsWith(sessionId + ':'));
+  if (mine.length) await idbOp('recparts','readwrite', s => { mine.forEach(k => s.delete(k)); });
+}
+async function checkRecovery(){
+  try {
+    const keys = await idbOp('recparts','readonly', s => s.getAllKeys());
+    APP.recovery = [...new Set((keys || []).map(k => String(k).split(':')[0]))];
+  } catch { APP.recovery = []; }
+}
+async function recoverRecordings(){
+  for (const sid of [...APP.recovery]) {
+    const parts = (await idbOp('recparts','readonly', s => s.getAll())).filter(p => p.sessionId === sid).sort((a,b) => a.idx - b.idx);
+    if (!parts.length) continue;
+    try {
+      const blobs = []; for (const p of parts) blobs.push(await decryptBytes(APP.key, p.data));
+      const s = APP.db.sessions[sid];
+      if (!s || s.deleted) { if (await confirmDlg('נמצאה הקלטה של תיעוד שנמחק. למחוק אותה מהמכשיר?')) await clearRecParts(sid); continue; }
+      const dur = s.recording?.durationSec || Math.round(blobs.reduce((n,b) => n + b.length, 0) / 4000);
+      await uploadRecording(sid, new Blob(blobs, { type: parts[0].mime }), parts[0].mime, dur);
+    } catch (e) { toast('לא ניתן לפענח את ההקלטה (ייתכן שהוקלטה עם סיסמה אחרת)', 'err'); }
+  }
+  render();
+}
+async function playRecording(id, autoplay=true){
+  const s = get('sessions', id); if (!s?.recording) return null;
+  const box = $('#player-' + id); if (!box) return null;
+  $$('.player').forEach(b => { if (b !== box) b.innerHTML = ''; });
+  box.innerHTML = '<span class="muted small">מוריד ומפענח את ההקלטה…</span>';
+  try {
+    const bytes = await APP.store.get(s.recording.file);
+    if (!bytes) throw new Error('קובץ ההקלטה לא נמצא');
+    const plain = await decryptBytes(APP.key, bytes);
+    if (APP.audioUrl) URL.revokeObjectURL(APP.audioUrl);
+    APP.audioUrl = URL.createObjectURL(new Blob([plain], { type: s.recording.mime }));
+    box.innerHTML = `<audio controls preload="metadata" src="${APP.audioUrl}" style="width:100%"></audio>`;
+    const au = box.querySelector('audio');
+    await new Promise(res => { au.addEventListener('loadedmetadata', res, { once:true }); au.addEventListener('error', res, { once:true }); setTimeout(res, 5000); });
+    // הקלטות דפדפן נשמרות בלי אורך מוגדר; מחשבים אותו כדי שאפשר יהיה לקפוץ לכל נקודה
+    if (!isFinite(au.duration)) {
+      await new Promise(res => {
+        const h = () => { if (isFinite(au.duration)) { au.removeEventListener('durationchange', h); res(); } };
+        au.addEventListener('durationchange', h); au.currentTime = 1e7; setTimeout(res, 4000);
+      });
+      au.currentTime = 0;
+    }
+    if (autoplay) au.play().catch(() => {});
+    return au;
+  } catch (e) { box.innerHTML = `<span class="err">${esc(e.message)}</span>`; return null; }
+}
+async function seekTo(id, t){
+  const box = $('#player-' + id); if (!box) return;
+  let au = box.querySelector('audio');
+  if (!au) au = await playRecording(id, false);
+  if (!au) return;
+  au.currentTime = Math.max(0, t - 0.5); au.play().catch(() => {});
+  box.scrollIntoView({ behavior:'smooth', block:'nearest' });
+}
+
+/* =====================================================================
+   TRANSCRIPTION — Google Cloud Speech-to-Text, בחשבון שלך
+   האודיו נשלח בחיבור מוצפן לעיבוד ואינו נשמר אצל גוגל; התמלול עצמו נשמר אצלך מוצפן.
+   ===================================================================== */
+const TR = {
+  configured(){ return !!(CFG.transcription.enabled && CFG.transcription.projectId); },
+  enabled(){ return this.configured() && APP.store?.kind === 'drive'; },
+  async recognize(pcm){
+    const body = { config: { encoding:'LINEAR16', sampleRateHertz:16000, audioChannelCount:1, languageCode: CFG.transcription.language || 'he-IL' },
+                   audio: { content: b64e(new Uint8Array(pcm.buffer, pcm.byteOffset, pcm.byteLength)) } };
+    const r = await DriveStore.api('https://speech.googleapis.com/v1/speech:recognize', {
+      method:'POST', headers:{ 'Content-Type':'application/json', 'x-goog-user-project': CFG.transcription.projectId }, body: JSON.stringify(body) });
+    const j = await r.json();
+    return (j.results || []).map(x => x.alternatives?.[0]?.transcript || '').join(' ').replace(/\s+/g, ' ').trim();
+  }
+};
+const SR = 16000;
+function downsample(buf, ratio){
+  if (ratio === 1) return Float32Array.from(buf);
+  const n = Math.floor(buf.length / ratio), out = new Float32Array(n);
+  for (let i = 0; i < n; i++) { const a = Math.floor(i * ratio), b = Math.min(buf.length, Math.floor((i + 1) * ratio)); let sum = 0; for (let j = a; j < b; j++) sum += buf[j]; out[i] = sum / Math.max(1, b - a); }
+  return out;
+}
+function rmsOf(d, a=0, b=d.length){ let s = 0; for (let i = a; i < b; i++) s += d[i] * d[i]; return Math.sqrt(s / Math.max(1, b - a)); }
+function toInt16(parts, len){
+  const out = new Int16Array(len); let o = 0;
+  for (const p of parts) for (let i = 0; i < p.length && o < len; i++) { const v = Math.max(-1, Math.min(1, p[i])); out[o++] = v < 0 ? v * 0x8000 : v * 0x7fff; }
+  return out;
+}
+// חיתוך לקטעים של 12–25 שניות, ברגע של שקט, כדי לא לחתוך מילים באמצע
+function splitAtSilence(d){
+  const win = SR / 10, segs = []; let a = 0;
+  for (let i = 0; i + win <= d.length; i += win) {
+    const len = i + win - a;
+    if ((len >= SR * 12 && rmsOf(d, i, i + win) < 0.015) || len >= SR * 25) { segs.push([a, i + win]); a = i + win; }
+  }
+  if (d.length - a > SR * 0.6) segs.push([a, d.length]);
+  return segs;
+}
+function startLiveTranscription(rec, ac, src){
+  const tr = rec.tr = { parts:[], len:0, offset:0, q:Promise.resolve(), pending:0, failed:0, lastErr:'', active:true };
+  APP.trLive[rec.sessionId] = tr;
+  const node = ac.createScriptProcessor(4096, 1, 1), mute = ac.createGain(); mute.gain.value = 0;
+  src.connect(node); node.connect(mute); mute.connect(ac.destination);
+  const ratio = ac.sampleRate / SR;
+  node.onaudioprocess = e => {
+    if (APP.rec !== rec || rec.paused || !tr.active) return;
+    const ds = downsample(e.inputBuffer.getChannelData(0), ratio);
+    tr.parts.push(ds); tr.len += ds.length;
+    if ((tr.len >= SR * 12 && rmsOf(ds) < 0.015) || tr.len >= SR * 25) flushSegment(rec);
+  };
+  tr.node = node;
+  setTrStatus(rec.sessionId);
+}
+function flushSegment(rec){
+  const tr = rec.tr; if (!tr || !tr.len) return;
+  const parts = tr.parts, len = tr.len, t = tr.offset;
+  tr.offset += len / SR; tr.parts = []; tr.len = 0;
+  if (len < SR * 0.6) return;
+  const pcmF = new Float32Array(len); let o = 0; for (const p of parts) { pcmF.set(p, o); o += p.length; }
+  if (rmsOf(pcmF) < 0.003) return;              // שקט — לא שולחים
+  const pcm = toInt16([pcmF], len), sid = rec.sessionId;
+  tr.pending++; setTrStatus(sid);
+  tr.q = tr.q.then(() => TR.recognize(pcm)).then(text => appendTranscript(sid, t, text))
+    .catch(e => { console.error(e); tr.failed++; tr.lastErr = e instanceof NeedAuth ? 'החיבור לגוגל פג' : e.message; markIncomplete(sid); })
+    .finally(() => { tr.pending--; setTrStatus(sid); finishLive(sid); });
+}
+function finishLive(sid){
+  const tr = APP.trLive[sid];
+  if (tr && !tr.active && tr.pending === 0) { delete APP.trLive[sid]; setTrStatus(sid); if (tr.failed) toast(`${tr.failed} קטעי תמלול נכשלו. אפשר ללחוץ "תמלול מחדש" כדי לתמלל את כל ההקלטה.`, 'err'); }
+}
+function markIncomplete(sid){ const s = APP.db?.sessions[sid]; if (s && !s.deleted) { s.transcriptIncomplete = true; s.updatedAt = Date.now(); APP.ver++; scheduleSave(); } }
+function appendTranscript(sid, t, text){
+  text = (text || '').trim(); if (!text || !APP.db) return;
+  const s = APP.db.sessions[sid]; if (!s || s.deleted) return;
+  const cur = (s.transcript || '').replace(/\s+$/, '');
+  s.transcript = (cur ? cur + '\n' : '') + `[${fmtDur(t)}] ${text}`;
+  s.updatedAt = Date.now(); APP.ver++; setSync('pending'); scheduleSave();
+  syncTranscriptBox(s);
+}
+function syncTranscriptBox(s){
+  const ta = $(`textarea[data-sb="transcript"][data-sid="${s.id}"]`); if (!ta) return;
+  const focused = document.activeElement === ta, a = ta.selectionStart, b = ta.selectionEnd;
+  ta.value = s.transcript || '';
+  if (focused) ta.setSelectionRange(a, b); else ta.scrollTop = ta.scrollHeight;
+}
+function trStatusHtml(s){
+  const job = APP.trJob?.sid === s.id ? APP.trJob : null, tr = APP.trLive[s.id];
+  if (job) return `<span class="chip info">מתמלל… ${job.done}/${job.total || '?'}</span>`;
+  if (tr) return tr.failed ? `<span class="chip warn" title="${esc(tr.lastErr)}">שגיאת תמלול: ${esc(tr.lastErr.slice(0, 60))}</span>`
+              : tr.pending ? `<span class="chip info">מתמלל…</span>` : `<span class="chip acc">תמלול בזמן אמת פעיל</span>`;
+  if (s.transcriptIncomplete) return `<span class="chip warn">חלק מהתמלול חסר</span>`;
+  return s.transcript ? `<span class="chip info">מתומלל</span>` : '';
+}
+function setTrStatus(sid){ const el = $('#trstatus-' + sid); const s = APP.db?.sessions[sid]; if (el && s) el.innerHTML = trStatusHtml(s); }
+
+async function transcribeRecording(sid){
+  const s = get('sessions', sid); if (!s?.recording) return;
+  if (APP.trJob) { toast('תמלול אחר כבר רץ', 'err'); return; }
+  if (s.transcript && !(await confirmDlg('לתמלל מחדש את כל ההקלטה? התמלול הקיים (כולל תיקונים ידניים) יוחלף.', 'תמלול מחדש'))) return;
+  if (DriveStore.exp - Date.now() < 15*60000) { try { await DriveStore.auth(); } catch (e) { toast(e.message, 'err'); return; } }
+  const job = APP.trJob = { sid, done:0, total:0 }; setTrStatus(sid);
+  const lines = [];
+  try {
+    const bytes = await APP.store.get(s.recording.file); if (!bytes) throw new Error('קובץ ההקלטה לא נמצא');
+    const plain = await decryptBytes(APP.key, bytes);
+    const Off = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+    const audio = await new Off(1, SR, SR).decodeAudioData(plain.buffer.slice(plain.byteOffset, plain.byteOffset + plain.byteLength));
+    let d = audio.getChannelData(0);
+    if (audio.numberOfChannels > 1) { const m = new Float32Array(d.length); for (let c = 0; c < audio.numberOfChannels; c++) { const x = audio.getChannelData(c); for (let i = 0; i < d.length; i++) m[i] += x[i] / audio.numberOfChannels; } d = m; }
+    const segs = splitAtSilence(d); job.total = segs.length; setTrStatus(sid);
+    for (const [a, b] of segs) {
+      if (rmsOf(d, a, b) >= 0.003) { const text = await TR.recognize(toInt16([d.subarray(a, b)], b - a)); if (text) lines.push(`[${fmtDur(a / SR)}] ${text}`); }
+      job.done++; setTrStatus(sid);
+    }
+    const cur = APP.db.sessions[sid]; cur.transcript = lines.join('\n'); delete cur.transcriptIncomplete; upsert('sessions', cur);
+    toast('התמלול הושלם');
+  } catch (e) {
+    console.error(e);
+    const cur = APP.db?.sessions[sid];
+    if (cur && lines.length) { cur.transcript = lines.join('\n'); cur.transcriptIncomplete = true; upsert('sessions', cur); }
+    toast('התמלול נעצר: ' + (e instanceof NeedAuth ? 'החיבור לגוגל פג' : e.message), 'err');
+  } finally { APP.trJob = null; if (APP.key) render(); }
+}
+
+function updateRecPill(){
+  const el = $('#recpill'); if (!el) return;
+  el.innerHTML = APP.rec ? `<a class="recpill" href="#/session/${APP.rec.sessionId}"><span class="d"></span>${APP.rec.paused ? 'מושהה' : 'מקליט'} ${fmtDur(recElapsed())}</a>` : '';
+}
+
+
+/* =====================================================================
+   GROUPS — קבוצות, מערכי טיפול וציוד
+   המשתתפים הם רשומות מטופלים רגילות (בלי כפל רישום): לקבוצה נשמרת רק רשימת מזהים.
+   ===================================================================== */
+const DAY_OPTS = (sel) => DAYS.map((d, i) => `<option value="${i}" ${String(sel) === String(i) ? 'selected' : ''}>יום ${d}</option>`).join('');
+const groupWhen = g => [g.day !== '' && g.day != null ? 'יום ' + DAYS[+g.day] : '', g.time || '', g.duration ? g.duration + ' דק׳' : ''].filter(Boolean).join(' · ');
+const groupMembers = g => (g.memberIds || []).map(id => get('patients', id)).filter(Boolean).sort((a,b) => pname(a.id).localeCompare(pname(b.id), 'he'));
+function attendedBy(s, pid){
+  if (Array.isArray(s.attendance)) return s.attendance.includes(pid);
+  return (get('groups', s.groupId)?.memberIds || []).includes(pid);
+}
+function groupsOn(dateStr){
+  const dow = parseLocal(dateStr).getDay();
+  return all('groups').filter(g => g.status !== 'ended' && g.day !== '' && g.day != null && +g.day === dow
+    && (!g.startDate || dateStr >= g.startDate) && (!g.endDate || dateStr <= g.endDate));
+}
+function createGroupSession(gid, date, planId=''){
+  const g = get('groups', gid);
+  return upsert('sessions', { groupId: gid, planId, attendance: [...(g?.memberIds || [])].filter(id => get('patients', id)), date, notes:'', summary:'', plan:'', transcript:'' });
+}
+function equipChip(e){
+  const have = +e.have || 0, need = +e.need || 0;
+  if (need > have) return `<span class="chip warn">חסר ${need - have}</span>`;
+  return have > 0 ? `<span class="chip ok">קיים</span>` : `<span class="chip">אין במלאי</span>`;
+}
+const plansUsing = eid => all('plans').filter(pl => (pl.equipment || []).some(x => x.id === eid));
+
+VIEWS.groups = () => {
+  const tab = APP.gtab || 'groups';
+  const tabs = [['groups', `קבוצות (${all('groups').length})`], ['plans', `מערכי טיפול (${all('plans').length})`], ['equipment', `ציוד (${all('equipment').length})`]];
+  let body = '';
+  if (tab === 'groups') {
+    const gs = all('groups').filter(g => APP.showEnded || g.status !== 'ended').sort((a,b) => (a.name||'').localeCompare(b.name||'', 'he'));
+    body = `
+      <div class="row" style="margin-bottom:14px"><label class="check small"><input type="checkbox" data-act="toggleended" ${APP.showEnded ? 'checked' : ''}> הצגת קבוצות שהסתיימו</label><span class="sp"></span><button class="btn pri" data-act="newgroup">${ic('plus')} קבוצה חדשה</button></div>
+      <div class="grid g2">${gs.map(g => { const ms = groupMembers(g); const last = all('sessions').filter(x => x.groupId === g.id).sort((a,b) => (b.date||'').localeCompare(a.date||''))[0];
+        return `<a class="card gcard" href="#/group/${g.id}">
+          <div class="row"><div class="avatar">${ic('group')}</div><div style="flex:1;min-width:0"><div class="t" style="font-weight:700;font-size:17px">${esc(g.name)}</div>${g.population ? `<div class="small muted">${esc(g.population)}</div>` : ''}</div>${g.status === 'ended' ? '<span class="chip">הסתיימה</span>' : ''}</div>
+          <div class="small" style="margin-top:10px;display:flex;flex-direction:column;gap:3px">
+            ${groupWhen(g) ? `<span>${ic('clock','ic ic-s')} ${esc(groupWhen(g))}</span>` : ''}${g.location ? `<span>${ic('pin','ic ic-s')} ${esc(g.location)}</span>` : ''}
+            <span>${ic('users','ic ic-s')} ${ms.length} משתתפים${last ? ' · מפגש אחרון ' + fmtDate(last.date, { day:'numeric', month:'numeric' }) : ''}</span></div>
+        </a>`; }).join('') || `<div class="card"><div class="empty">עוד אין קבוצות. התחילי ב"קבוצה חדשה".</div></div>`}</div>`;
+  }
+  if (tab === 'plans') {
+    const gf = APP.planFilter || '';
+    const pls = all('plans').filter(pl => !gf || (gf === 'general' ? !pl.groupId : pl.groupId === gf)).sort((a,b) => (a.title||'').localeCompare(b.title||'', 'he'));
+    body = `
+      <div class="row" style="margin-bottom:14px"><select id="planfilter" style="max-width:260px"><option value="">כל המערכים</option><option value="general" ${gf==='general'?'selected':''}>כלליים (לא משויכים לקבוצה)</option>${all('groups').map(g => `<option value="${g.id}" ${gf===g.id?'selected':''}>${esc(g.name)}</option>`).join('')}</select><span class="sp"></span><button class="btn pri" data-act="newplan">${ic('plus')} מערך חדש</button></div>
+      ${pls.map(planCard).join('') || `<div class="card"><div class="empty">אין מערכי טיפול</div></div>`}`;
+  }
+  if (tab === 'equipment') {
+    const only = APP.eqFilter || 'all';
+    const eq = all('equipment').filter(e => only === 'all' || (only === 'missing' ? (+e.need||0) > (+e.have||0) : (+e.have||0) > 0)).sort((a,b) => (a.category||'').localeCompare(b.category||'', 'he') || (a.name||'').localeCompare(b.name||'', 'he'));
+    const missing = all('equipment').filter(e => (+e.need||0) > (+e.have||0));
+    body = `
+      <div class="row" style="margin-bottom:14px">
+        <div class="seg">${[['all','הכל'],['have','קיים'],['missing',`חסר לרכישה (${missing.length})`]].map(([k,l]) => `<button class="${only===k?'on':''}" data-act="eqfilter" data-f="${k}">${l}</button>`).join('')}</div>
+        <span class="sp"></span><button class="btn pri" data-act="newequip">${ic('plus')} פריט ציוד</button></div>
+      <div class="card" style="padding:6px 12px"><table class="t eqt"><thead><tr><th>פריט</th><th>קטגוריה</th><th>קיים</th><th>נדרש</th><th>מיקום</th><th>בשימוש במערכים</th><th></th></tr></thead><tbody>
+        ${eq.map(e => { const used = plansUsing(e.id); return `<tr data-act="editequip" data-id="${e.id}" style="cursor:pointer">
+          <td><b>${esc(e.name)}</b>${e.notes ? `<div class="small muted">${esc(e.notes)}</div>` : ''}</td><td class="small">${esc(e.category)}</td>
+          <td class="num"><span class="qty"><button class="iconbtn" data-act="eqqty" data-id="${e.id}" data-d="-1" aria-label="פחות">−</button><b>${+e.have||0}</b><button class="iconbtn" data-act="eqqty" data-id="${e.id}" data-d="1" aria-label="יותר">+</button></span></td>
+          <td class="num">${+e.need||0}</td><td class="small">${esc(e.location)}</td>
+          <td class="small">${used.map(pl => esc(pl.title)).join(', ') || '<span class="muted">—</span>'}</td><td>${equipChip(e)}</td></tr>`; }).join('') || `<tr><td colspan="7" class="empty">${only==='missing' ? 'אין ציוד חסר' : 'אין פריטי ציוד'}</td></tr>`}
+      </tbody></table></div>`;
+  }
+  return { title:'קבוצות', html: `<div class="tabs">${tabs.map(([k,l]) => `<a href="#" data-act="gtab" data-tab="${k}" class="${tab===k?'on':''}">${l}</a>`).join('')}</div>${body}`,
+    after(){ const f = $('#planfilter'); f && (f.onchange = () => { APP.planFilter = f.value; render(); }); } };
+};
+
+function planCard(pl, opts={}){
+  const eq = (pl.equipment || []).map(x => ({ e: get('equipment', x.id), qty: +x.qty || 1 })).filter(x => x.e);
+  const short = eq.filter(x => (+x.e.have||0) < x.qty);
+  const block = (t, v) => v ? `<div class="sblock"><div class="q">${t}</div><div style="white-space:pre-wrap">${esc(v)}</div></div>` : '';
+  return `<div class="card pcard">
+    <h2>${ic('list')} ${esc(pl.title)}<span class="sp"></span>
+      ${pl.groupId && !opts.inGroup ? `<a class="chip acc" href="#/group/${pl.groupId}" style="text-decoration:none">${esc(gname(pl.groupId))}</a>` : ''}${!pl.groupId ? '<span class="chip">כללי</span>' : ''}
+      ${pl.duration ? `<span class="chip">${esc(pl.duration)} דק׳</span>` : ''}${short.length ? `<span class="chip warn">חסר ציוד</span>` : ''}
+      <button class="btn sm" data-act="editplan" data-id="${pl.id}">${ic('edit')} עריכה</button></h2>
+    ${pl.goals ? `<div class="clamp">${esc(pl.goals)}</div>` : ''}
+    <details class="trx"><summary>המערך המלא</summary>
+      ${block('קהל יעד', pl.audience)}${block('מטרות', pl.goals)}${block('פתיחה', pl.opening)}${block('מהלך מרכזי', pl.main)}${block('סיום', pl.closing)}
+      ${eq.length || pl.extraEquipment ? `<div class="sblock"><div class="q">ציוד</div>${eq.map(x => `<div class="row" style="gap:6px;padding:3px 0">${esc(x.e.name)} × ${x.qty} ${(+x.e.have||0) >= x.qty ? '<span class="chip ok">יש</span>' : `<span class="chip warn">יש ${+x.e.have||0}</span>`}</div>`).join('')}${pl.extraEquipment ? `<div style="white-space:pre-wrap">${esc(pl.extraEquipment)}</div>` : ''}</div>` : ''}
+      ${block('הערות', pl.notes)}
+    </details>
+  </div>`;
+}
+
+function groupDialog(id){
+  const g = id ? structuredClone(get('groups', id)) : { status:'active', memberIds:[], duration: 90, day:'' };
+  openDialog({ title: id ? 'עריכת קבוצה' : 'קבוצה חדשה', wide:true,
+    body: `<div class="fgrid">
+      <label class="f full">שם הקבוצה *<input type="text" name="name" required value="${esc(g.name)}"></label>
+      <label class="f">אוכלוסייה / סוג<input type="text" name="population" value="${esc(g.population)}" placeholder="למשל: מתבגרים, הורים, נשים אחרי לידה"></label>
+      <label class="f">מנחה שותף/ה<input type="text" name="coLeader" value="${esc(g.coLeader)}"></label>
+      <label class="f full">הסבר על הקבוצה<textarea name="description" style="min-height:70px">${esc(g.description)}</textarea></label>
+      <label class="f full">רקע (איך נוצרה, מטרות, מסגרת)<textarea name="background" style="min-height:70px">${esc(g.background)}</textarea></label>
+      <label class="f full">מיקום<input type="text" name="location" value="${esc(g.location)}" placeholder="כתובת / חדר / קישור לזום"></label>
+      <label class="f">יום קבוע<select name="day"><option value="">ללא יום קבוע</option>${DAY_OPTS(g.day)}</select></label>
+      <label class="f">שעה<input type="time" name="time" value="${esc(g.time)}"></label>
+      <label class="f">משך (דקות)<input type="number" name="duration" min="10" step="5" value="${esc(g.duration)}"></label>
+      <label class="f">תאריך התחלה<input type="date" name="startDate" value="${esc(g.startDate)}"></label>
+      <label class="f">תאריך סיום (אם ידוע)<input type="date" name="endDate" value="${esc(g.endDate)}"></label>
+      <label class="f">סטטוס<select name="status"><option value="active" ${g.status!=='ended'?'selected':''}>פעילה</option><option value="ended" ${g.status==='ended'?'selected':''}>הסתיימה</option></select></label>
+      <label class="f full">הערות<textarea name="notes" style="min-height:60px">${esc(g.notes)}</textarea></label>
+    </div>`,
+    extra: id ? `<button type="button" class="btn danger" data-act="delgroup" data-id="${id}">${ic('trash')} מחיקה</button>` : '',
+    onSubmit(fd){
+      for (const k of ['name','population','coLeader','description','background','location','day','time','duration','startDate','endDate','status','notes']) g[k] = (fd.get(k) || '').toString().trim();
+      const saved = upsert('groups', g);
+      if (!id) location.hash = '#/group/' + saved.id;
+    } });
+}
+
+function planDialog(id, preset={}){
+  const pl = id ? structuredClone(get('plans', id)) : { groupId: preset.group || '', equipment: [] };
+  const eqAll = all('equipment').sort((a,b) => (a.name||'').localeCompare(b.name||'', 'he'));
+  const sel = Object.fromEntries((pl.equipment || []).map(x => [x.id, x.qty]));
+  openDialog({ title: id ? 'עריכת מערך טיפול' : 'מערך טיפול חדש', wide:true,
+    body: `<div class="fgrid">
+      <label class="f full">שם המערך *<input type="text" name="title" required value="${esc(pl.title)}"></label>
+      <label class="f">קבוצה<select name="groupId"><option value="">כללי — לא משויך לקבוצה</option>${all('groups').map(g => `<option value="${g.id}" ${pl.groupId===g.id?'selected':''}>${esc(g.name)}</option>`).join('')}</select></label>
+      <label class="f">משך (דקות)<input type="number" name="duration" min="5" step="5" value="${esc(pl.duration)}"></label>
+      <label class="f full">קהל יעד<input type="text" name="audience" value="${esc(pl.audience)}"></label>
+      <label class="f full">מטרות<textarea name="goals" style="min-height:70px">${esc(pl.goals)}</textarea></label>
+      <label class="f full">פתיחה<textarea name="opening" style="min-height:70px">${esc(pl.opening)}</textarea></label>
+      <label class="f full">מהלך מרכזי<textarea name="main" style="min-height:110px">${esc(pl.main)}</textarea></label>
+      <label class="f full">סיום<textarea name="closing" style="min-height:70px">${esc(pl.closing)}</textarea></label>
+      <div class="full"><b class="small">ציוד מהמלאי</b>
+        ${eqAll.length ? `<div class="eqpick">${eqAll.map(e => `<label class="check"><input type="checkbox" data-eq="${e.id}" ${sel[e.id] ? 'checked' : ''}> <span style="flex:1">${esc(e.name)} <span class="muted small">(קיים ${+e.have||0})</span></span><input type="number" data-eqq="${e.id}" min="1" value="${esc(sel[e.id] || 1)}" style="width:72px;min-height:34px;padding:4px 8px" aria-label="כמות"></label>`).join('')}</div>`
+          : `<div class="small muted">אין עדיין פריטים במלאי. אפשר להוסיף אותם בלשונית "ציוד".</div>`}</div>
+      <label class="f full">ציוד נוסף (שאינו במלאי)<textarea name="extraEquipment" style="min-height:50px">${esc(pl.extraEquipment)}</textarea></label>
+      <label class="f full">הערות<textarea name="notes" style="min-height:60px">${esc(pl.notes)}</textarea></label>
+    </div>`,
+    extra: id ? `<button type="button" class="btn danger" data-act="delplan" data-id="${id}">${ic('trash')} מחיקה</button>` : '',
+    onSubmit(fd, form){
+      for (const k of ['title','groupId','duration','audience','goals','opening','main','closing','extraEquipment','notes']) pl[k] = (fd.get(k) || '').toString().trim();
+      pl.equipment = $$('[data-eq]', form).filter(c => c.checked).map(c => ({ id: c.dataset.eq, qty: Math.max(1, +$(`[data-eqq="${c.dataset.eq}"]`, form).value || 1) }));
+      upsert('plans', pl);
+    } });
+}
+
+function equipDialog(id){
+  const e = id ? structuredClone(get('equipment', id)) : { have: 0, need: 0 };
+  const cats = [...new Set(all('equipment').map(x => x.category).filter(Boolean))];
+  openDialog({ title: id ? 'עריכת פריט ציוד' : 'פריט ציוד חדש',
+    body: `<div class="fgrid">
+      <label class="f full">שם הפריט *<input type="text" name="name" required value="${esc(e.name)}"></label>
+      <label class="f">קטגוריה<input type="text" name="category" list="eqcats" value="${esc(e.category)}" placeholder="יצירה, משחקים, קלפים…"><datalist id="eqcats">${cats.map(c => `<option value="${esc(c)}">`).join('')}</datalist></label>
+      <label class="f">מיקום אחסון<input type="text" name="location" value="${esc(e.location)}"></label>
+      <label class="f">כמות קיימת<input type="number" name="have" min="0" value="${esc(e.have)}"></label>
+      <label class="f">כמות נדרשת<input type="number" name="need" min="0" value="${esc(e.need)}"></label>
+      <label class="f full">הערות (ספק, מחיר, קישור)<input type="text" name="notes" value="${esc(e.notes)}"></label>
+    </div>`,
+    extra: id ? `<button type="button" class="btn danger" data-act="delequip" data-id="${id}">${ic('trash')} מחיקה</button>` : '',
+    onSubmit(fd){
+      for (const k of ['name','category','location','notes']) e[k] = (fd.get(k) || '').toString().trim();
+      e.have = +fd.get('have') || 0; e.need = +fd.get('need') || 0;
+      upsert('equipment', e);
+    } });
+}
+
+VIEWS.group = (id) => {
+  const g = get('groups', id);
+  if (!g) return { title:'קבוצות', html:`<div class="empty">הקבוצה לא נמצאה. <a href="#/groups">חזרה</a></div>` };
+  const ms = groupMembers(g);
+  const sess = all('sessions').filter(x => x.groupId === id).sort((a,b) => (b.date||'').localeCompare(a.date||''));
+  const pls = all('plans').filter(pl => pl.groupId === id);
+  const tab = APP.grtab || 'details';
+  const tabs = [['details','פרטים'], ['members',`משתתפים (${ms.length})`], ['sessions',`מפגשים והקלטות (${sess.length})`], ['plans',`מערכי טיפול (${pls.length})`]];
+  let body = '';
+  if (tab === 'details') {
+    const info = [['אוכלוסייה', g.population], ['מיקום', g.location], ['מועד קבוע', groupWhen(g)], ['תקופה', [g.startDate && fmtDate(g.startDate,{day:'numeric',month:'numeric',year:'numeric'}), g.endDate && fmtDate(g.endDate,{day:'numeric',month:'numeric',year:'numeric'})].filter(Boolean).join(' – ')], ['מנחה שותף/ה', g.coLeader]];
+    body = `<div class="grid g2">
+      <div class="card"><h2>פרטי הקבוצה<span class="sp"></span><button class="btn sm" data-act="editgroup" data-id="${id}">${ic('edit')} עריכה</button></h2>
+        <table class="t"><tbody>${info.map(([k,v]) => `<tr><td class="muted" style="width:120px">${k}</td><td>${esc(v) || '<span class="muted">—</span>'}</td></tr>`).join('')}</tbody></table></div>
+      <div class="card"><h2>הסבר ורקע</h2>
+        ${g.description ? `<div class="sblock" style="margin-top:0"><div class="q">הסבר</div><div style="white-space:pre-wrap">${esc(g.description)}</div></div>` : ''}
+        ${g.background ? `<div class="sblock"><div class="q">רקע</div><div style="white-space:pre-wrap">${esc(g.background)}</div></div>` : ''}
+        ${g.notes ? `<div class="sblock"><div class="q">הערות</div><div style="white-space:pre-wrap">${esc(g.notes)}</div></div>` : ''}
+        ${!g.description && !g.background && !g.notes ? '<div class="empty">אפשר להוסיף הסבר ורקע בעריכה</div>' : ''}</div>
+    </div>`;
+  }
+  if (tab === 'members') {
+    const others = activePatients().filter(p => !(g.memberIds || []).includes(p.id));
+    body = `<div class="card"><h2>משתתפי הקבוצה<span class="sp"></span>
+        <button class="btn sm" data-act="addmember" data-id="${id}" ${others.length ? '' : 'disabled'}>${ic('plus')} הוספה מרשימת המטופלים</button>
+        <button class="btn sm pri" data-act="newmember" data-id="${id}">${ic('plus')} משתתף/ת חדש/ה</button></h2>
+      <p class="small muted" style="margin-top:0">כל משתתף/ת הוא/היא רשומה אחת ברשימת המטופלים הראשית — הפרטים, הטפסים והתשלומים נמצאים בכרטיס האישי, בלי כפילות.</p>
+      <div class="list">${ms.map(p => { const n = sess.filter(x => attendedBy(x, p.id)).length;
+        return `<div class="item"><a href="#/patient/${p.id}" class="row" style="flex:1;min-width:0;text-decoration:none;color:inherit"><div class="avatar">${esc(initials(p))}</div><div class="main"><div class="t">${esc(pname(p.id))}</div><div class="small muted">${esc(p.phone || '')}${sess.length ? ` · נכח/ה ב-${n} מתוך ${sess.length} מפגשים` : ''}</div></div></a>
+        <button class="btn sm ghost" data-act="rmmember" data-id="${id}" data-pid="${p.id}" title="הסרה מהקבוצה (הרשומה האישית נשארת)">הסרה</button></div>`; }).join('') || '<div class="empty">אין עדיין משתתפים</div>'}</div></div>`;
+  }
+  if (tab === 'sessions') body = `
+    <div class="row" style="margin-bottom:14px"><input type="search" id="ssearch" placeholder="חיפוש בתמלולים ובסיכומים של הקבוצה…" style="max-width:380px"><span class="sp"></span><button class="btn pri" data-act="newgroupsession" data-id="${id}">${ic('mic')} תיעוד מפגש חדש</button></div>
+    <div id="snomatch" class="card hidden"><div class="empty">לא נמצאו מפגשים שמכילים את החיפוש</div></div>
+    <div id="slist">${sess.length ? sess.map(sessionCard).join('') : `<div class="card"><div class="empty">אין עדיין מפגשים מתועדים</div></div>`}</div>`;
+  if (tab === 'plans') body = `
+    <div class="row" style="margin-bottom:14px"><span class="sp"></span><button class="btn pri" data-act="newplan" data-group="${id}">${ic('plus')} מערך חדש לקבוצה</button></div>
+    ${pls.map(pl => planCard(pl, { inGroup:true })).join('') || `<div class="card"><div class="empty">אין מערכים משויכים לקבוצה</div></div>`}`;
+  return { title: g.name, after: tab === 'sessions' ? setupSessionSearch : null, html: `
+    <div class="row" style="margin-bottom:12px"><a href="#/groups" class="btn ghost sm" data-act="gtab" data-tab="groups">${ic('prev')} כל הקבוצות</a>${g.status === 'ended' ? '<span class="chip">הסתיימה</span>' : ''}${g.location ? `<span class="chip">${ic('pin','ic ic-s')} ${esc(g.location)}</span>` : ''}${groupWhen(g) ? `<span class="chip">${ic('clock','ic ic-s')} ${esc(groupWhen(g))}</span>` : ''}</div>
+    <div class="tabs">${tabs.map(([k,l]) => `<a href="#" data-act="grtab" data-tab="${k}" class="${tab===k?'on':''}">${l}</a>`).join('')}</div>
+    ${body}` };
+};
+
+function newGroupSessionDialog(gid, date){
+  const g = get('groups', gid); const ms = groupMembers(g);
+  const pls = all('plans').filter(pl => pl.groupId === gid || !pl.groupId);
+  openDialog({ title:`תיעוד מפגש · ${esc(g.name)}`, submit:'פתיחת המפגש',
+    body: `<label class="f">תאריך<input type="date" name="date" value="${esc(date || ymd(new Date()))}"></label>
+      <label class="f">מערך טיפול<select name="planId"><option value="">ללא</option>${pls.map(pl => `<option value="${pl.id}">${esc(pl.title)}${pl.groupId ? '' : ' (כללי)'}</option>`).join('')}</select></label>
+      <div><b class="small">נוכחות</b><div class="opts" style="margin-top:6px">${ms.map(p => `<label class="check"><input type="checkbox" name="att" value="${p.id}" checked> ${esc(pname(p.id))}</label>`).join('') || '<span class="small muted">אין משתתפים בקבוצה</span>'}</div></div>`,
+    onSubmit(fd){
+      const d = fd.get('date'); const t = (d === ymd(new Date()) ? hm(new Date()) : (g.time || '10:00'));
+      const s = upsert('sessions', { groupId: gid, planId: fd.get('planId') || '', attendance: fd.getAll('att'), date: d + 'T' + t, notes:'', summary:'', plan:'', transcript:'' });
+      location.hash = '#/session/' + s.id;
+    } });
+}
+
+function groupSessionCard(s){
+  const g = get('groups', s.groupId); const ms = g ? groupMembers(g) : [];
+  const extra = (s.attendance || []).filter(pid => !ms.some(m => m.id === pid)).map(pid => get('patients', pid)).filter(Boolean);
+  const pls = all('plans').filter(pl => pl.groupId === s.groupId || !pl.groupId);
+  const plan = s.planId ? get('plans', s.planId) : null;
+  return `<div class="grid g2" style="margin-bottom:16px">
+    <div class="card" style="margin:0"><h2>${ic('users')} נוכחות<span class="sp"></span><span class="chip">${(s.attendance || []).length} / ${ms.length}</span></h2>
+      <div class="opts">${[...ms, ...extra].map(p => `<label class="check"><input type="checkbox" data-act="att" data-sid="${s.id}" data-pid="${p.id}" ${(s.attendance || []).includes(p.id) ? 'checked' : ''}> <a href="#/patient/${p.id}">${esc(pname(p.id))}</a></label>`).join('') || '<span class="small muted">אין משתתפים בקבוצה</span>'}</div></div>
+    <div class="card" style="margin:0"><h2>${ic('list')} מערך המפגש</h2>
+      <select data-sb="planId" data-sid="${s.id}"><option value="">ללא מערך</option>${pls.map(pl => `<option value="${pl.id}" ${s.planId===pl.id?'selected':''}>${esc(pl.title)}</option>`).join('')}</select>
+      ${plan ? `<div style="margin-top:10px">${plan.goals ? `<div class="sblock" style="margin-top:0"><div class="q">מטרות</div><div class="clamp">${esc(plan.goals)}</div></div>` : ''}<button type="button" class="btn sm" style="margin-top:8px" data-act="viewplan" data-id="${plan.id}">הצגת המערך המלא</button></div>` : ''}</div>
+  </div>`;
+}
+
+
+/* =====================================================================
+   REMINDERS — תזכורות לפני פגישות (ווטסאפ + מייל)
+   שליחה ידנית: קישור ווטסאפ / מייל מוכן בלחיצה.
+   שליחה אוטומטית: האפליקציה כותבת "תיבת דואר יוצא" לדרייב שלך, וסקריפט גוגל
+   (Apps Script) בחשבון שלך שולח כל 15 דקות את מה שהגיע זמנו — גם כשהאפליקציה סגורה.
+   ===================================================================== */
+const REM_DEFAULTS = {
+  enabled:false, hoursBefore:24, whatsapp:true, email:true, location:'', signature:'',
+  waText:'שלום {שם},\nתזכורת לפגישה של {מטופל} מחר, יום {יום} {תאריך} בשעה {שעה}{מיקום}.\nאם יש שינוי, אשמח לעדכון.\n{חתימה}',
+  emailSubject:'תזכורת לפגישה ביום {יום} {תאריך} בשעה {שעה}',
+  emailBody:'שלום {שם},\n\nתזכורת לפגישה של {מטופל} מחר, יום {יום} {תאריך} בשעה {שעה}{מיקום}.\nאם יש שינוי, אשמח לעדכון.\n\nבברכה,\n{חתימה}',
+};
+const remCfg = () => Object.assign({}, REM_DEFAULTS, APP.db?.settings?.reminders || {});
+const PLACEHOLDERS = ['שם','מטופל','יום','תאריך','שעה','מיקום','חתימה'];
+const fillTpl = (t, v) => String(t || '').replace(/\{(שם|מטופל|יום|תאריך|שעה|מיקום|חתימה)\}/g, (_, k) => v[k] ?? '');
+function waPhone(ph){
+  let d = String(ph || '').replace(/\D/g, '');
+  if (!d) return '';
+  if (d.startsWith('00')) d = d.slice(2); else if (d.startsWith('0')) d = '972' + d.slice(1);
+  return d.length >= 11 ? d : '';
+}
+const validEmail = e => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(e || '').trim());
+function recipientsOf(pid){
+  const p = get('patients', pid); if (!p) return [];
+  const out = (p.contacts || []).filter(c => c.remind).map(c => ({ name: c.name || pname(pid), phone: c.phone, email: c.email }));
+  if (p.remindSelf) out.unshift({ name: p.firstName || pname(pid), phone: p.phone, email: p.email, self:true });
+  return out;
+}
+function computeReminders(days=8){
+  const cfg = remCfg(); if (!cfg.enabled) return [];
+  const now = Date.now(), until = now + days * 86400000;
+  const out = [];
+  for (const a of all('appts')) {
+    if (a.status !== 'scheduled') continue;
+    const at = parseLocal(a.start).getTime(); if (at <= now || at > until) continue;
+    const p = get('patients', a.patientId); if (!p) continue;
+    const d = parseLocal(a.start);
+    for (const r of recipientsOf(a.patientId)) {
+      const vars = { 'שם': (r.name || '').split(' ')[0], 'מטופל': r.self ? 'שלך' : (p.firstName || ''), 'יום': DAYS[d.getDay()], 'תאריך': `${d.getDate()}/${d.getMonth()+1}`, 'שעה': hm(d), 'מיקום': cfg.location ? ' ב' + cfg.location.replace(/^ב/, '') : '', 'חתימה': cfg.signature };
+      const base = { apptId:a.id, apptAt:new Date(at).toISOString(), sendAt:new Date(at - cfg.hoursBefore * 3600000).toISOString(), name:r.name, patient:pname(a.patientId) };
+      if (cfg.whatsapp) { const to = waPhone(r.phone);
+        out.push(Object.assign({}, base, { id:`${a.id}|${a.start}|wa|${to || r.name}`, channel:'whatsapp', to, text: fillTpl(cfg.waText, vars), waParams:[vars['שם'], vars['מטופל'], `${vars['יום']} ${vars['תאריך']}`, vars['שעה'], cfg.location || ''], missing: !to && 'אין מספר טלפון תקין' })); }
+      if (cfg.email) { const ok = validEmail(r.email);
+        out.push(Object.assign({}, base, { id:`${a.id}|${a.start}|em|${ok ? r.email.trim().toLowerCase() : r.name}`, channel:'email', to: ok ? r.email.trim() : '', subject: fillTpl(cfg.emailSubject, vars), body: fillTpl(cfg.emailBody, vars), missing: !ok && 'אין כתובת מייל' })); }
+    }
+  }
+  return out.sort((x, y) => x.sendAt.localeCompare(y.sendAt));
+}
+function remState(r){
+  const log = APP.db.settings.remLog?.[r.id];
+  if (log) return { k:'sent', label:`נשלח ${log.by === 'manual' ? 'ידנית ' : ''}${new Date(log.at).toLocaleString('he-IL', { dateStyle:'short', timeStyle:'short' })}`, cls:'ok' };
+  const st = APP.remStatus?.[r.id];
+  if (st?.status === 'sent') return { k:'sent', label:'נשלח אוטומטית ' + new Date(st.at).toLocaleString('he-IL', { dateStyle:'short', timeStyle:'short' }), cls:'ok' };
+  if (r.missing) return { k:'missing', label:r.missing, cls:'' };
+  if (st?.status === 'failed') return { k:'due', label:'השליחה האוטומטית נכשלה', cls:'warn', err: st.error };
+  if (st?.status === 'waiting') return { k: Date.parse(r.sendAt) <= Date.now() ? 'due' : 'scheduled', label:'ווטסאפ עוד לא חובר לשליחה אוטומטית', cls:'warn' };
+  const auto = CFG.reminders.automation && APP.store?.kind === 'drive';
+  if (Date.parse(r.sendAt) <= Date.now()) return { k:'due', label: auto ? 'ממתין לשליחה אוטומטית' : 'הגיע זמן השליחה', cls:'warn' };
+  return { k:'scheduled', label: (auto ? 'יישלח אוטומטית ' : 'לשליחה ') + new Date(r.sendAt).toLocaleString('he-IL', { weekday:'short', day:'numeric', month:'numeric', hour:'2-digit', minute:'2-digit' }), cls:'info' };
+}
+function remRow(r){
+  const st = remState(r), d = parseLocal(get('appts', r.apptId)?.start || r.apptAt.slice(0,16));
+  const btn = r.missing ? '' : r.channel === 'whatsapp'
+    ? `<a class="btn sm" href="https://wa.me/${r.to}?text=${encodeURIComponent(r.text)}" target="_blank" rel="noopener noreferrer" data-act="remsent" data-id="${esc(r.id)}">ווטסאפ</a>`
+    : `<a class="btn sm" href="mailto:${encodeURIComponent(r.to)}?subject=${encodeURIComponent(r.subject)}&body=${encodeURIComponent(r.body)}" data-act="remsent" data-id="${esc(r.id)}">מייל</a>`;
+  return `<div class="item" style="cursor:default">
+    <span class="chip ${r.channel === 'whatsapp' ? 'ok' : 'info'}" style="min-width:64px;justify-content:center">${r.channel === 'whatsapp' ? 'ווטסאפ' : 'מייל'}</span>
+    <div class="main"><div class="t">${esc(r.name)} <span class="muted small">· ${esc(r.patient)}</span></div>
+      <div class="small muted">פגישה ${DAYS[d.getDay()]} ${d.getDate()}/${d.getMonth()+1} ${hm(d)} · <bdi dir="ltr">${r.channel === 'whatsapp' ? esc(r.to ? '+' + r.to : '') : esc(r.to)}</bdi></div>
+      ${st.err ? `<div class="small" style="color:var(--warn)">${esc(st.err)}</div>` : ''}</div>
+    <span class="chip ${st.cls}">${esc(st.label)}</span>${st.k !== 'sent' ? btn : ''}
+  </div>`;
+}
+function remindersView(){
+  const cfg = remCfg();
+  if (!cfg.enabled) return `<div class="card"><div class="empty">התזכורות כבויות. אפשר להפעיל אותן ב<a href="#/settings">הגדרות</a>.</div></div>`;
+  const items = computeReminders(8);
+  const groups = { due: [], scheduled: [], missing: [], sent: [] };
+  items.forEach(r => groups[remState(r).k].push(r));
+  const auto = CFG.reminders.automation && APP.store.kind === 'drive';
+  const last = APP.remStatus?._meta?.lastRun;
+  const sec = (t, list, empty) => `<div class="card"><h2>${t}<span class="sp"></span><span class="chip">${list.length}</span></h2><div class="list">${list.map(remRow).join('') || `<div class="empty">${empty}</div>`}</div></div>`;
+  return `
+    <div class="notice ${auto ? 'ok' : ''}" style="margin-bottom:16px">${ic('clock')}<div style="flex:1">
+      ${auto ? `<b>שליחה אוטומטית פעילה</b> — ${cfg.hoursBefore} שעות לפני כל פגישה. ${last ? 'הסקריפט רץ לאחרונה ' + new Date(last).toLocaleString('he-IL', { dateStyle:'short', timeStyle:'short' }) + '.' : '<span style="color:var(--warn)">הסקריפט עוד לא דיווח — ודאי שהשלמת את שלב 5 במדריך.</span>'}`
+             : `<b>שליחה ידנית</b> — כשמגיע הזמן, התזכורת מופיעה כאן ובמסך הבית, ולחיצה על "ווטסאפ" או "מייל" פותחת הודעה מוכנה. לשליחה אוטומטית — שלב 5 במדריך.`}
+      </div>${auto ? `<button class="btn sm" data-act="remrefresh">רענון</button>` : ''}</div>
+    ${sec('לשליחה עכשיו', groups.due, 'אין תזכורות שממתינות')}
+    ${sec('מתוכננות (8 ימים קרובים)', groups.scheduled, 'אין תזכורות מתוכננות')}
+    ${groups.missing.length ? sec('חסרים פרטים', groups.missing, '') : ''}
+    ${groups.sent.length ? sec('נשלחו', groups.sent, '') : ''}`;
+}
+function remSettingsCard(){
+  const c = remCfg();
+  return `<div class="card" style="grid-column:1/-1"><h2>${ic('clock')} תזכורות לפני פגישות</h2>
+    <form id="remform" class="fgrid">
+      <label class="check full"><input type="checkbox" name="enabled" ${c.enabled ? 'checked' : ''}> <b>להפעיל תזכורות</b> — נשלחות לאנשי הקשר המסומנים ב-V בכרטיס המטופל</label>
+      <label class="f">כמה שעות לפני הפגישה<input type="number" name="hoursBefore" min="1" max="96" value="${esc(c.hoursBefore)}"></label>
+      <div class="f" style="font-size:14px;font-weight:600">ערוצים<label class="check"><input type="checkbox" name="whatsapp" ${c.whatsapp ? 'checked' : ''}> ווטסאפ</label><label class="check"><input type="checkbox" name="email" ${c.email ? 'checked' : ''}> מייל</label></div>
+      <label class="f">מיקום הקליניקה (ל-{מיקום})<input type="text" name="location" value="${esc(c.location)}" placeholder="למשל: רחוב הרצל 10, רמת גן"></label>
+      <label class="f">חתימה (ל-{חתימה})<input type="text" name="signature" value="${esc(c.signature)}" placeholder="השם שלך"></label>
+      <div class="full small muted">משתנים שאפשר לשלב בתבניות: ${PLACEHOLDERS.map(x => `<code>{${x}}</code>`).join(' ')}</div>
+      <label class="f full">תבנית ווטסאפ<textarea name="waText" style="min-height:110px">${esc(c.waText)}</textarea></label>
+      <label class="f full">נושא המייל<input type="text" name="emailSubject" value="${esc(c.emailSubject)}"></label>
+      <label class="f full">גוף המייל<textarea name="emailBody" style="min-height:150px">${esc(c.emailBody)}</textarea></label>
+      <div class="full"><b class="small">תצוגה מקדימה</b><div class="rempreview" id="rempreview"></div></div>
+      <div class="full notice">${ic('shield')}<div>ההודעה נשלחת לאנשים מחוץ לקליניקה. כדאי לא לכלול בה מידע טיפולי. בשליחה אוטומטית, התזכורות של השבוע הקרוב (שם, טלפון/מייל, מועד וטקסט ההודעה) נשמרות <b>ללא ההצפנה של האפליקציה</b> בקובץ בדרייב שלך, כדי שהסקריפט יוכל לשלוח אותן. אחרי שליחה הן נמחקות ממנו.</div></div>
+      <div class="full row"><button class="btn pri" type="submit">שמירת הגדרות התזכורות</button><span class="small muted">שליחה אוטומטית: ${CFG.reminders.automation ? (APP.store.kind === 'drive' ? 'מופעלת' : 'פועלת רק בחיבור לגוגל דרייב') : 'כבויה (שלב 5 במדריך)'}</span></div>
+    </form></div>`;
+}
+function bindRemSettings(){
+  const f = $('#remform'); if (!f) return;
+  const read = () => { const d = new FormData(f); return { enabled: !!d.get('enabled'), hoursBefore: Math.max(1, +d.get('hoursBefore') || 24), whatsapp: !!d.get('whatsapp'), email: !!d.get('email'), location: d.get('location').trim(), signature: d.get('signature').trim(), waText: d.get('waText'), emailSubject: d.get('emailSubject'), emailBody: d.get('emailBody') }; };
+  const preview = () => { const c = read(); const v = { 'שם':'רונית', 'מטופל':'נועה', 'יום':'שלישי', 'תאריך':'14/10', 'שעה':'16:00', 'מיקום': c.location ? ' ב' + c.location.replace(/^ב/, '') : '', 'חתימה': c.signature };
+    $('#rempreview').innerHTML = `<div class="pv"><div class="pvh">ווטסאפ</div>${esc(fillTpl(c.waText, v))}</div><div class="pv"><div class="pvh">מייל · ${esc(fillTpl(c.emailSubject, v))}</div>${esc(fillTpl(c.emailBody, v))}</div>`; };
+  f.oninput = preview; preview();
+  f.onsubmit = e => { e.preventDefault(); APP.db.settings.reminders = read(); markDirty(); toast('הגדרות התזכורות נשמרו'); };
+}
+function markRemSent(id, by='manual'){
+  const log = APP.db.settings.remLog ||= {};
+  log[id] = { at: Date.now(), by };
+  const cutoff = Date.now() - 45 * 86400000;
+  for (const k in log) if (log[k].at < cutoff) delete log[k];
+  markDirty();
+}
+
+/* ---- תיבת דואר יוצא בדרייב (לשליחה האוטומטית) ---- */
+const OUTBOX_NAME = 'clinic-reminders-outbox.json', STATUS_NAME = 'clinic-reminders-status.json', REM_FOLDER = 'הקליניקה — תזכורות';
+const Outbox = {
+  lastJson:null, timer:null,
+  async findOrCreate(name, mime, parent, content){
+    const q = encodeURIComponent(`name='${name}' and trashed=false`);
+    const r = await DriveStore.api(`https://www.googleapis.com/drive/v3/files?spaces=drive&q=${q}&fields=files(id,name)`);
+    const f = (await r.json()).files?.[0]; if (f) return f.id;
+    if (mime === 'application/vnd.google-apps.folder') {
+      const c = await DriveStore.api('https://www.googleapis.com/drive/v3/files?fields=id', { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ name, mimeType: mime }) });
+      return (await c.json()).id;
+    }
+    const boundary = 'tv' + uid().replace(/-/g, '');
+    const body = new Blob([`--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify({ name, parents:[parent], mimeType: mime })}\r\n--${boundary}\r\nContent-Type: ${mime}\r\n\r\n`, content, `\r\n--${boundary}--`]);
+    const c = await DriveStore.api('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id', { method:'POST', headers:{ 'Content-Type':`multipart/related; boundary=${boundary}` }, body });
+    return (await c.json()).id;
+  },
+  async ids(){
+    if (this._ids) return this._ids;
+    const folder = await this.findOrCreate(REM_FOLDER, 'application/vnd.google-apps.folder');
+    const outbox = await this.findOrCreate(OUTBOX_NAME, 'application/json', folder, '{"items":[]}');
+    const status = await this.findOrCreate(STATUS_NAME, 'application/json', folder, '{}');
+    return (this._ids = { folder, outbox, status });
+  },
+  async write(json){
+    const { outbox } = await this.ids();
+    await DriveStore.api(`https://www.googleapis.com/upload/drive/v3/files/${outbox}?uploadType=media`, { method:'PATCH', headers:{ 'Content-Type':'application/json; charset=UTF-8' }, body: json });
+  },
+  async readStatus(){
+    const { status } = await this.ids();
+    const r = await DriveStore.api(`https://www.googleapis.com/drive/v3/files/${status}?alt=media`);
+    try { return JSON.parse(await r.text() || '{}'); } catch { return {}; }
+  }
+};
+const autoReminders = () => CFG.reminders.automation && APP.store?.kind === 'drive' && !!APP.key;
+function scheduleOutboxSync(){ if (!autoReminders()) return; clearTimeout(Outbox.timer); Outbox.timer = setTimeout(() => syncOutbox().catch(e => console.warn('outbox', e)), 3000); }
+async function syncOutbox(){
+  if (!autoReminders()) return;
+  const cfg = remCfg();
+  const items = cfg.enabled ? computeReminders(8).filter(r => !r.missing && !APP.db.settings.remLog?.[r.id] && APP.remStatus?.[r.id]?.status !== 'sent')
+    .map(r => ({ id:r.id, channel:r.channel, to:r.to, sendAt:r.sendAt, apptAt:r.apptAt, subject:r.subject, body:r.body, waParams:r.waParams })) : [];
+  const json = JSON.stringify({ version:1, generatedAt:new Date().toISOString(), senderName: cfg.signature || '', items });
+  if (json.replace(/"generatedAt":"[^"]*",/, '') === (Outbox.lastJson || '').replace(/"generatedAt":"[^"]*",/, '')) return;
+  await Outbox.write(json); Outbox.lastJson = json;
+}
+async function refreshRemStatus(){
+  if (!autoReminders()) return;
+  APP.remStatusAt = Date.now();
+  try { APP.remStatus = await Outbox.readStatus(); if (route().name === 'calendar' && APP.calView === 'rem' && !$('#dlg').open) render(); }
+  catch (e) { console.warn('rem status', e); }
+}
+
+/* =====================================================================
+   VIEW: settings
+   ===================================================================== */
+VIEWS.settings = () => {
+  const st = APP.db.settings;
+  return { title:'הגדרות', html: `
+    <div class="grid g2">
+      <div class="card"><h2>${ic('shield')} אבטחה ואחסון</h2>
+        <table class="t"><tbody>
+          <tr><td class="muted">אחסון</td><td>${esc(APP.store.label)}</td></tr>
+          <tr><td class="muted">הצפנה</td><td>AES-256-GCM, מפתח שנגזר מהסיסמה (PBKDF2, ${KDF_ITER.toLocaleString()} סבבים)</td></tr>
+          ${APP.store.kind === 'drive' ? `<tr><td class="muted">הרשאת גוגל</td><td>גישה רק לתיקייה הנסתרת של האפליקציה — לא לשאר הקבצים בדרייב</td></tr>` : ''}
+          <tr><td class="muted">תמלול</td><td>${TR.enabled() ? 'פעיל — Google Speech-to-Text בפרויקט ' + esc(CFG.transcription.projectId) + '. האודיו נשלח לעיבוד בלבד ולא נשמר אצל גוגל; התמלול נשמר אצלך מוצפן.' : TR.configured() ? 'מוגדר, אבל פועל רק בחיבור לגוגל דרייב' : 'לא מופעל (שלב 4 במדריך)'}</td></tr>
+        </tbody></table>
+        <div class="row" style="margin-top:14px"><button class="btn" data-act="lock">${ic('lock')} נעילה עכשיו</button><button class="btn" data-act="backup">גיבוי מוצפן להורדה</button></div>
+      </div>
+      <div class="card"><h2>${ic('gear')} העדפות</h2>
+        <form id="setform" class="fgrid">
+          <label class="f">נעילה אוטומטית אחרי (דקות)<input type="number" name="autoLock" min="1" max="120" value="${esc(st.autoLock || CFG.autoLockMinutes)}"></label>
+          <label class="f">מחיר ברירת מחדל לפגישה (₪)<input type="number" name="defaultFee" min="0" value="${esc(st.defaultFee || '')}"></label>
+          <label class="f">משך פגישה ברירת מחדל (דקות)<input type="number" name="defaultDuration" min="5" step="5" value="${esc(st.defaultDuration || 50)}"></label>
+          <div class="full"><button class="btn pri" type="submit">שמירה</button></div>
+        </form>
+      </div>
+      ${remSettingsCard()}
+      ${APP.store.kind === 'local' ? `<div class="card"><h2>נתוני דוגמה</h2><p class="muted" style="margin-top:0">כדי להתנסות באפליקציה אפשר להוסיף כמה מטופלים ופגישות מומצאים.</p><button class="btn" data-act="demodata">הוספת נתוני דוגמה</button></div>` : ''}
+      <div class="card"><h2>התנתקות</h2><p class="muted" style="margin-top:0">נועל את האפליקציה וחוזר למסך בחירת האחסון. המידע נשאר שמור ומוצפן.</p><button class="btn danger" data-act="switchstore">התנתקות</button></div>
+    </div>`,
+    after(){ bindRemSettings(); $('#setform').onsubmit = e => { e.preventDefault(); const f = new FormData(e.target); APP.db.settings.autoLock = +f.get('autoLock') || 10; APP.db.settings.defaultFee = f.get('defaultFee'); APP.db.settings.defaultDuration = +f.get('defaultDuration') || 50; markDirty(); toast('נשמר'); }; } };
+};
+function addDemoData(){
+  const names = [['נועה','לוי','054-1111111'],['יוסי','כהן','052-2222222'],['מיכל','ברק','050-3333333'],['אורי','שחר','053-4444444']];
+  const ws = startOfWeek(new Date());
+  names.forEach(([firstName, lastName, phone], i) => {
+    const p = upsert('patients', { firstName, lastName, phone, status:'active', fee: 350 + i*25, startDate: ymd(addDays(ws, -60)), contacts: i === 0 ? [{ name:'רונית לוי', relation:'אמא', phone:'054-9999999' }] : [] });
+    for (let w = -2; w <= 1; w++) {
+      const d = addDays(ws, w*7 + 1 + i);
+      const past = d < new Date();
+      const a = upsert('appts', { patientId:p.id, start: ymd(d) + 'T' + pad(9 + i*2) + ':00', duration:50, fee:p.fee, status: past ? 'done' : 'scheduled' });
+      if (past && (w < -1 || i % 2 === 0)) upsert('payments', { patientId:p.id, apptId:a.id, amount:p.fee, date:ymd(d), method: METHODS[i % 3] });
+    }
+  });
+  const kids = names.slice(0, 3).map(([f]) => all('patients').find(p => p.firstName === f)?.id).filter(Boolean);
+  const g = upsert('groups', { name:'קבוצת ויסות רגשי', population:'מתבגרים 13–15', description:'קבוצה טיפולית בת 12 מפגשים לחיזוק כלים לויסות רגשי.', background:'נפתחה בשיתוף היועצת של חטיבת הביניים.', location:'חדר 2, מרכז הקהילה', day: String(new Date().getDay()), time:'16:30', duration:90, startDate: ymd(addDays(ws, -21)), status:'active', memberIds: kids });
+  const e1 = upsert('equipment', { name:'קלפי רגשות', category:'קלפים', have:1, need:2, location:'ארון בחדר 2' });
+  const e2 = upsert('equipment', { name:'בצק משחק', category:'יצירה', have:6, need:6, location:'ארגז יצירה' });
+  upsert('equipment', { name:'כריות ישיבה', category:'חדר', have:8, need:10, location:'חדר 2' });
+  upsert('plans', { title:'מפגש 4 — מזהים רגשות בגוף', groupId: g.id, duration:'90', goals:'זיהוי תחושות גופניות שמלוות רגשות שונים.', opening:'סבב שם + רגש של היום', main:'עבודה עם קלפי רגשות בזוגות, ואז מיפוי רגשות על שרטוט גוף', closing:'תרגיל נשימה וסבב משפט סיום', equipment:[{ id:e1.id, qty:2 }, { id:e2.id, qty:6 }] });
+  toast('נוספו נתוני דוגמה'); render();
+}
+
+/* =====================================================================
+   actions (event delegation)
+   ===================================================================== */
+const ACT = {
+  pickstore: el => pickStore(el.dataset.kind),
+  switchstore: async () => { if (APP.key) await lock(); APP.store = null; DriveStore.token = null; try { localStorage.removeItem('tv-store'); } catch {} showStart(); },
+  lock: () => lock(),
+  reauth: async () => { try { await DriveStore.auth(); toast('החיבור חודש'); await saveNow(); } catch (e) { toast(e.message, 'err'); } },
+  retrysave: () => saveNow().catch(e => toast(e.message, 'err')),
+  closedlg: () => $('#dlg').close(),
+  // patients
+  newpatient: () => patientDialog(),
+  editpatient: el => patientDialog(el.dataset.id),
+  addcontact: () => $('#contacts').insertAdjacentHTML('beforeend', contactRow()),
+  delcontact: el => el.closest('.crow').remove(),
+  delpatient: async el => {
+    const id = el.dataset.id;
+    if (!(await confirmDlg(`למחוק את ${esc(pname(id))}? הפגישות, התשלומים והתיעוד יישארו, אבל לא יהיו משויכים למטופל/ת פעיל/ה. מומלץ לסמן "לא פעיל/ה" במקום.`))) return;
+    removeRec('patients', id); location.hash = '#/patients';
+  },
+  toggleinactive: el => { APP.showInactive = el.checked; render(); },
+  ptab: el => { APP.ptab = el.dataset.tab; render(); },
+  // appointments
+  newappt: el => apptDialog(null, { date: el.dataset.date, patient: el.dataset.patient }),
+  editappt: el => apptDialog(el.dataset.id),
+  delappt: async el => {
+    const a = get('appts', el.dataset.id);
+    const series = a.series ? all('appts').filter(x => x.series === a.series && x.start >= a.start && x.status === 'scheduled') : [];
+    if (series.length > 1) {
+      openDialog({ title:'מחיקת פגישה', body:`<p style="margin:0">זו פגישה מתוך סדרה שבועית.</p>`, submit:'רק הפגישה הזו',
+        extra:`<button type="button" class="btn danger" id="delseries">הפגישה וכל הבאות (${series.length})</button>`,
+        onSubmit(){ removeRec('appts', a.id); } });
+      $('#delseries').onclick = () => { series.forEach(x => removeRec('appts', x.id)); $('#dlg').close(); render(); };
+      return;
+    }
+    if (await confirmDlg('למחוק את הפגישה?')) { removeRec('appts', a.id); render(); }
+  },
+  week: el => { const d = +el.dataset.d; APP.weekStart = d === 0 ? startOfWeek(new Date()) : addDays(APP.weekStart, d); render(); },
+  quickpay: el => {
+    const a = get('appts', el.dataset.id); const due = (+a.fee||0) - apptPaid(a);
+    upsert('payments', { patientId:a.patientId, apptId:a.id, amount:due, date:ymd(new Date()), method: APP.db.settings.lastMethod || 'העברה בנקאית' });
+    $('#dlg').close(); toast(`נרשם תשלום ${money(due)}`); render();
+  },
+  // payments
+  newpayment: el => paymentDialog(null, { patient: el.dataset.patient, appt: el.dataset.appt }),
+  editpayment: el => paymentDialog(el.dataset.id),
+  delpayment: async el => { if (await confirmDlg('למחוק את התשלום?')) { removeRec('payments', el.dataset.id); render(); } },
+  // forms
+  newtemplate: () => { APP.tdraft = null; location.hash = '#/form/new'; },
+  addfield: () => { APP.tdraft.fields.push({ id: uid().slice(0,8), type:'text', label:'', required:false }); render(); setTimeout(() => { const ins = $$('[data-fb$=":label"]'); ins[ins.length-1]?.focus(); }, 30); },
+  delfield: el => { APP.tdraft.fields.splice(+el.dataset.i, 1); render(); },
+  mvfield: el => { const i = +el.dataset.i, j = i + +el.dataset.d, f = APP.tdraft.fields; if (j < 0 || j >= f.length) return; [f[i], f[j]] = [f[j], f[i]]; render(); },
+  savetemplate: () => {
+    const t = APP.tdraft; if (!t.title.trim()) { toast('יש לתת שם לטופס', 'err'); return; }
+    if (t.fields.some(f => !f.label.trim())) { toast('לכל שדה צריך להיות טקסט', 'err'); return; }
+    const isNew = t.id === 'new'; if (isNew) delete t.id;
+    const saved = upsert('templates', structuredClone(t)); APP.tdraft = null; toast('הטופס נשמר');
+    void saved; location.hash = '#/forms';
+  },
+  leavebuilder: () => { APP.tdraft = null; },
+  deltemplate: async el => { if (await confirmDlg('למחוק את הטופס? טפסים שכבר מולאו יישמרו.')) { removeRec('templates', el.dataset.id); APP.tdraft = null; location.hash = '#/forms'; } },
+  previewtemplate: () => { const t = APP.tdraft; openDialog({ title:'תצוגה מקדימה', wide:true, body:`<div style="display:flex;flex-direction:column;gap:12px"><h2 style="margin:0">${esc(t.title)}</h2>${t.description?`<p style="margin:0">${esc(t.description)}</p>`:''}${t.fields.map(fieldHtml).join('')}</div>` }); initSignatures($('#dlg')); },
+  fillform: el => {
+    const tpls = all('templates');
+    openDialog({ title:'מילוי טופס בקליניקה', submit:'מעבר למצב מילוי',
+      body: `<label class="f">טופס<select name="tpl" required><option value="">בחירה…</option>${tpls.map(t => `<option value="${t.id}" ${t.id===el.dataset.tpl?'selected':''}>${esc(t.title)}</option>`).join('')}</select></label>
+        <label class="f">מטופל/ת<select name="patient" required>${patientOptions(el.dataset.patient)}</select></label>
+        <div class="notice">${ic('lock')}<div>במצב מילוי המטופל/ת רואה רק את הטופס. בסיום האפליקציה תינעל ותצטרכי את הסיסמה כדי לחזור.</div></div>`,
+      onSubmit(fd){ startKiosk(fd.get('tpl'), fd.get('patient')); return false; } });
+  },
+  clearsig: el => { const cv = $(`canvas[data-sig="${el.dataset.f}"]`); const ctx = cv.getContext('2d'); ctx.save(); ctx.setTransform(1,0,0,1,0,0); ctx.clearRect(0,0,cv.width,cv.height); ctx.restore(); cv.dataset.empty = '1'; },
+  exitkiosk: () => lock(),
+  viewresp: el => {
+    const r = get('responses', el.dataset.id);
+    openDialog({ title:'טופס שמולא', wide:true, body: respHtml(r),
+      extra:`<button type="button" class="btn" data-act="printresp" data-id="${r.id}">${ic('print')} הדפסה</button><button type="button" class="btn danger" data-act="delresp" data-id="${r.id}">${ic('trash')} מחיקה</button>` });
+  },
+  printresp: el => { const pa = $('#printarea'); pa.innerHTML = respHtml(get('responses', el.dataset.id)); pa.classList.remove('hidden'); window.print(); setTimeout(() => { pa.innerHTML = ''; pa.classList.add('hidden'); }, 500); },
+  delresp: async el => { const id = el.dataset.id; if (await confirmDlg('למחוק את הטופס שמולא?')) { removeRec('responses', id); render(); } },
+  // sessions
+  newsession: el => newSessionDialog({ patient: el.dataset.patient }),
+  sessionfromappt: el => sessionFromAppt(el.dataset.id),
+  recstart: el => startRecording(el.dataset.id),
+  recpause: () => pauseRecording(),
+  recstop: () => stopRecording(),
+  playrec: el => playRecording(el.dataset.id),
+  seek: el => seekTo(el.dataset.id, +el.dataset.t),
+  transcribe: el => transcribeRecording(el.dataset.id),
+  recover: async () => {
+    if (APP.store.kind === 'drive' && Date.now() > DriveStore.exp - 60000) { try { await DriveStore.auth(); } catch (e) { toast(e.message, 'err'); return; } }
+    recoverRecordings();
+  },
+  delsession: async el => {
+    const id = el.dataset.id; const s = get('sessions', id);
+    if (APP.rec?.sessionId === id) { toast('יש לעצור את ההקלטה קודם', 'err'); return; }
+    if (!(await confirmDlg('למחוק את התיעוד' + (s.recording ? ' ואת ההקלטה' : '') + '? אי אפשר לשחזר.'))) return;
+    if (s.recording) { try { await APP.store.del(s.recording.file); } catch {} }
+    removeRec('sessions', id); location.hash = '#/sessions';
+  },
+  // groups
+  gtab: el => { APP.gtab = el.dataset.tab; if (route().name === 'groups') render(); },
+  grtab: el => { APP.grtab = el.dataset.tab; render(); },
+  toggleended: el => { APP.showEnded = el.checked; render(); },
+  newgroup: () => groupDialog(),
+  editgroup: el => groupDialog(el.dataset.id),
+  delgroup: async el => { const id = el.dataset.id; if (!(await confirmDlg('למחוק את הקבוצה? רשומות המשתתפים והמפגשים המתועדים יישארו. אפשר גם לסמן אותה "הסתיימה" במקום.'))) return; removeRec('groups', id); location.hash = '#/groups'; },
+  addmember: el => {
+    const g = get('groups', el.dataset.id); const others = activePatients().filter(p => !(g.memberIds || []).includes(p.id));
+    openDialog({ title:'הוספת משתתפים מרשימת המטופלים', submit:'הוספה',
+      body: `<input type="search" id="msearch" placeholder="חיפוש…"><div class="opts" id="mlist" style="max-height:50vh;overflow:auto">${others.map(p => `<label class="check" data-s="${esc(pname(p.id).toLowerCase())}"><input type="checkbox" name="pid" value="${p.id}"> ${esc(pname(p.id))}</label>`).join('')}</div>`,
+      onSubmit(fd){ const add = fd.getAll('pid'); if (!add.length) return false; const cur = get('groups', g.id); cur.memberIds = [...new Set([...(cur.memberIds || []), ...add])]; upsert('groups', cur); toast(`נוספו ${add.length} משתתפים`); } });
+    const ms = $('#msearch'); ms.oninput = () => { const q = ms.value.trim().toLowerCase(); $$('#mlist label').forEach(l => l.style.display = !q || l.dataset.s.includes(q) ? '' : 'none'); };
+  },
+  newmember: el => { const gid = el.dataset.id; patientDialog(null, { title:'משתתף/ת חדש/ה (יתווסף/תתווסף גם לרשימת המטופלים)', onCreated: p => { const g = get('groups', gid); g.memberIds = [...new Set([...(g.memberIds || []), p.id])]; upsert('groups', g); } }); },
+  rmmember: async el => { const g = get('groups', el.dataset.id); if (!(await confirmDlg(`להסיר את ${esc(pname(el.dataset.pid))} מהקבוצה? הכרטיס האישי והתיעוד יישארו.`, 'הסרה'))) return; g.memberIds = (g.memberIds || []).filter(x => x !== el.dataset.pid); upsert('groups', g); render(); },
+  newgroupsession: el => newGroupSessionDialog(el.dataset.id),
+  groupslot: el => {
+    const g = get('groups', el.dataset.id), d = el.dataset.date;
+    const existing = all('sessions').find(x => x.groupId === g.id && (x.date || '').startsWith(d));
+    openDialog({ title: esc(g.name), body: `<div>${ic('cal','ic ic-s')} ${fmtDate(d, { weekday:'long', day:'numeric', month:'long' })} · ${esc(g.time || '')}${g.location ? ' · ' + esc(g.location) : ''}</div><div class="small muted">${groupMembers(g).length} משתתפים</div>
+      <div class="row"><a class="btn" href="#/group/${g.id}" data-act="closedlg">${ic('group')} דף הקבוצה</a>${existing ? `<a class="btn pri" href="#/session/${existing.id}" data-act="closedlg">${ic('mic')} פתיחת תיעוד המפגש</a>` : `<button type="button" class="btn pri" data-act="slotsession" data-id="${g.id}" data-date="${d}">${ic('mic')} תיעוד המפגש</button>`}</div>` });
+  },
+  slotsession: el => { const g = get('groups', el.dataset.id); const s = createGroupSession(g.id, el.dataset.date + 'T' + (g.time || '10:00')); $('#dlg').close(); location.hash = '#/session/' + s.id; },
+  att: el => { const s = APP.db.sessions[el.dataset.sid]; const set = new Set(s.attendance || []); el.checked ? set.add(el.dataset.pid) : set.delete(el.dataset.pid); sessionField(s.id, 'attendance', [...set]); },
+  // plans & equipment
+  newplan: el => planDialog(null, { group: el.dataset.group }),
+  editplan: el => planDialog(el.dataset.id),
+  viewplan: el => { const pl = get('plans', el.dataset.id); openDialog({ title: esc(pl.title), wide:true, body: planCard(pl).replace('<details class="trx">', '<details class="trx" open>') }); },
+  delplan: async el => { if (await confirmDlg('למחוק את מערך הטיפול?')) { removeRec('plans', el.dataset.id); render(); } },
+  newequip: () => equipDialog(),
+  editequip: (el, e) => { if (e.target.closest('[data-act="eqqty"]')) return; equipDialog(el.dataset.id); },
+  eqqty: (el, e) => { e.stopPropagation(); const it = get('equipment', el.dataset.id); it.have = Math.max(0, (+it.have || 0) + +el.dataset.d); upsert('equipment', it); render(); },
+  eqfilter: el => { APP.eqFilter = el.dataset.f; render(); },
+  delequip: async el => { if (await confirmDlg('למחוק את הפריט? הוא יוסר גם ממערכי הטיפול.')) { const id = el.dataset.id; all('plans').filter(pl => (pl.equipment || []).some(x => x.id === id)).forEach(pl => { pl.equipment = pl.equipment.filter(x => x.id !== id); upsert('plans', pl); }); removeRec('equipment', id); render(); } },
+  // reminders
+  calview: el => { APP.calView = el.dataset.v; if (route().name === 'calendar') render(); },
+  remsent: el => { markRemSent(el.dataset.id); setTimeout(() => { if (APP.key) render(); scheduleOutboxSync(); }, 300); },
+  remrefresh: async () => { await refreshRemStatus(); toast('עודכן'); },
+  // settings
+  demodata: () => addDemoData(),
+  backup: async () => {
+    try {
+      clearTimeout(APP.saveTimer); await saveNow();
+      const data = { app:'therapy-vault', exported:new Date().toISOString(), vault: dec.decode(await APP.store.get(VAULT)), db: b64e(await APP.store.get(DBFILE)) };
+      const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(data)], { type:'application/json' }));
+      a.download = `גיבוי-מוצפן-${ymd(new Date())}.json`; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+      toast('הגיבוי מוצפן — אפשר לפתוח אותו רק עם הסיסמה שלך. ההקלטות לא כלולות.');
+    } catch (e) { toast(e.message, 'err'); }
+  },
+};
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-act]');
+  if (!el || !ACT[el.dataset.act]) return;
+  if (el.tagName === 'INPUT') { ACT[el.dataset.act](el, e); return; }
+  if (el.tagName !== 'A' || el.getAttribute('href') === '#') e.preventDefault();
+  ACT[el.dataset.act](el, e);
+});
+
+/* ---------------- boot ---------------- */
+(function boot(){
+  if (!window.isSecureContext || !crypto.subtle) {
+    gate(`<h1>נדרש חיבור מאובטח</h1><p>יש לפתוח את האפליקציה בכתובת https (או מקומית). ההצפנה לא זמינה בחיבור לא מאובטח.</p>`);
+    return;
+  }
+  if (location.hash === '#/kiosk') history.replaceState(null, '', location.pathname + '#/home');
+  let saved = null; try { saved = localStorage.getItem('tv-store'); } catch {}
+  if (saved === 'local') { APP.store = LocalStore; LocalStore.has(VAULT).then(h => h ? showUnlock() : showCreate()); }
+  else if (saved === 'drive' && CFG.clientId) { APP.store = DriveStore; DriveStore.loadGis().then(() => { DriveStore.client = google.accounts.oauth2.initTokenClient({ client_id: CFG.clientId, scope: SCOPES(), callback:()=>{} }); }).catch(()=>{}); showUnlock(); }
+  else showStart();
+  if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(()=>{});
+})();
+</script>
+</body>
+</html>
